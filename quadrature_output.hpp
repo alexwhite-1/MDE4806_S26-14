@@ -13,6 +13,12 @@
 #include <cstdlib>
 #include <charconv>
 
+//need to add: starting procedure, updating procedure, changing parameters, updating depending on precision, setting index to 0,
+//tracking in case the device moves faster than we are updating, 
+
+//stub for setting index to 0 (only when A, B are low and angle is 0)
+void set_index(int A_1, int A_2, int B_1, int B_2, double angle);
+
 
 
 
