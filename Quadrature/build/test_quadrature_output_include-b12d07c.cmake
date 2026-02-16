@@ -1,0 +1,5 @@
+if(EXISTS "C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build/test_quadrature_output_tests-b12d07c.cmake")
+  include("C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build/test_quadrature_output_tests-b12d07c.cmake")
+else()
+  add_test(test_quadrature_output_NOT_BUILT-b12d07c test_quadrature_output_NOT_BUILT-b12d07c)
+endif()

@@ -1,0 +1,3 @@
+C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build/_deps/catch2-subbuild/CMakeFiles/catch2-populate.dir
+C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build/_deps/catch2-subbuild/CMakeFiles/edit_cache.dir
+C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build/_deps/catch2-subbuild/CMakeFiles/rebuild_cache.dir
