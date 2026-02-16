@@ -1,0 +1,817 @@
+Start testing: Feb 16 12:53 Eastern Standard Time
+----------------------------------------------------------
+1/39 Testing: QuadratureOutput initialization with default parameters
+1/39 Test: QuadratureOutput initialization with default parameters
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "QuadratureOutput initialization with default parameters"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"QuadratureOutput initialization with default parameters" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "QuadratureOutput initialization with default parameters"
+Randomness seeded to: 733195120
+===============================================================================
+All tests passed (5 assertions in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"QuadratureOutput initialization with default parameters" end time: Feb 16 12:53 Eastern Standard Time
+"QuadratureOutput initialization with default parameters" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/39 Testing: QuadratureOutput initialization with custom CPR
+2/39 Test: QuadratureOutput initialization with custom CPR
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "QuadratureOutput initialization with custom CPR"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"QuadratureOutput initialization with custom CPR" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "QuadratureOutput initialization with custom CPR"
+Randomness seeded to: 4178358669
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"QuadratureOutput initialization with custom CPR" end time: Feb 16 12:53 Eastern Standard Time
+"QuadratureOutput initialization with custom CPR" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/39 Testing: QuadratureOutput initialization with single axis
+3/39 Test: QuadratureOutput initialization with single axis
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "QuadratureOutput initialization with single axis"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"QuadratureOutput initialization with single axis" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "QuadratureOutput initialization with single axis"
+Randomness seeded to: 3320236413
+===============================================================================
+All tests passed (3 assertions in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"QuadratureOutput initialization with single axis" end time: Feb 16 12:53 Eastern Standard Time
+"QuadratureOutput initialization with single axis" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/39 Testing: QuadratureOutput initialization with dual axis
+4/39 Test: QuadratureOutput initialization with dual axis
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "QuadratureOutput initialization with dual axis"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"QuadratureOutput initialization with dual axis" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "QuadratureOutput initialization with dual axis"
+Randomness seeded to: 178516006
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"QuadratureOutput initialization with dual axis" end time: Feb 16 12:53 Eastern Standard Time
+"QuadratureOutput initialization with dual axis" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/39 Testing: Initialize axis 1 at 0 degrees
+5/39 Test: Initialize axis 1 at 0 degrees
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Initialize axis 1 at 0 degrees"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Initialize axis 1 at 0 degrees" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Initialize axis 1 at 0 degrees"
+Randomness seeded to: 3267217049
+===============================================================================
+All tests passed (3 assertions in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Initialize axis 1 at 0 degrees" end time: Feb 16 12:53 Eastern Standard Time
+"Initialize axis 1 at 0 degrees" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/39 Testing: Initialize axis 1 at 90 degrees
+6/39 Test: Initialize axis 1 at 90 degrees
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Initialize axis 1 at 90 degrees"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Initialize axis 1 at 90 degrees" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Initialize axis 1 at 90 degrees"
+Randomness seeded to: 3822360229
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Initialize axis 1 at 90 degrees" end time: Feb 16 12:53 Eastern Standard Time
+"Initialize axis 1 at 90 degrees" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/39 Testing: Initialize axis 1 at 360 degrees (wraps to 0)
+7/39 Test: Initialize axis 1 at 360 degrees (wraps to 0)
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Initialize axis 1 at 360 degrees (wraps to 0)"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Initialize axis 1 at 360 degrees (wraps to 0)" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Initialize axis 1 at 360 degrees (wraps to 0)"
+Randomness seeded to: 590961011
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Initialize axis 1 at 360 degrees (wraps to 0)" end time: Feb 16 12:53 Eastern Standard Time
+"Initialize axis 1 at 360 degrees (wraps to 0)" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/39 Testing: Initialize dual axis
+8/39 Test: Initialize dual axis
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Initialize dual axis"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Initialize dual axis" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Initialize dual axis"
+Randomness seeded to: 2698032552
+===============================================================================
+All tests passed (4 assertions in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Initialize dual axis" end time: Feb 16 12:53 Eastern Standard Time
+"Initialize dual axis" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/39 Testing: Quadrature pattern at 0 degrees
+9/39 Test: Quadrature pattern at 0 degrees
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Quadrature pattern at 0 degrees"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Quadrature pattern at 0 degrees" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Quadrature pattern at 0 degrees"
+Randomness seeded to: 816210344
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Quadrature pattern at 0 degrees" end time: Feb 16 12:53 Eastern Standard Time
+"Quadrature pattern at 0 degrees" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/39 Testing: Quadrature pattern at 90 degrees
+10/39 Test: Quadrature pattern at 90 degrees
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Quadrature pattern at 90 degrees"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Quadrature pattern at 90 degrees" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Quadrature pattern at 90 degrees"
+Randomness seeded to: 2546383862
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Quadrature pattern at 90 degrees" end time: Feb 16 12:53 Eastern Standard Time
+"Quadrature pattern at 90 degrees" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/39 Testing: Quadrature pattern at 180 degrees
+11/39 Test: Quadrature pattern at 180 degrees
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Quadrature pattern at 180 degrees"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Quadrature pattern at 180 degrees" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Quadrature pattern at 180 degrees"
+Randomness seeded to: 1543426992
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Quadrature pattern at 180 degrees" end time: Feb 16 12:53 Eastern Standard Time
+"Quadrature pattern at 180 degrees" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/39 Testing: Quadrature pattern at 270 degrees
+12/39 Test: Quadrature pattern at 270 degrees
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Quadrature pattern at 270 degrees"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Quadrature pattern at 270 degrees" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Quadrature pattern at 270 degrees"
+Randomness seeded to: 1890772586
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Quadrature pattern at 270 degrees" end time: Feb 16 12:53 Eastern Standard Time
+"Quadrature pattern at 270 degrees" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/39 Testing: Update with small positive angle change
+13/39 Test: Update with small positive angle change
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Update with small positive angle change"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Update with small positive angle change" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Update with small positive angle change"
+Randomness seeded to: 2655864890
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Update with small positive angle change" end time: Feb 16 12:53 Eastern Standard Time
+"Update with small positive angle change" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/39 Testing: Update with small negative angle change
+14/39 Test: Update with small negative angle change
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Update with small negative angle change"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Update with small negative angle change" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Update with small negative angle change"
+Randomness seeded to: 4046166229
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Update with small negative angle change" end time: Feb 16 12:53 Eastern Standard Time
+"Update with small negative angle change" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/39 Testing: Update with 90 degree rotation
+15/39 Test: Update with 90 degree rotation
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Update with 90 degree rotation"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Update with 90 degree rotation" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Update with 90 degree rotation"
+Randomness seeded to: 3394263757
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Update with 90 degree rotation" end time: Feb 16 12:53 Eastern Standard Time
+"Update with 90 degree rotation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/39 Testing: Update with full 360 degree rotation
+16/39 Test: Update with full 360 degree rotation
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Update with full 360 degree rotation"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Update with full 360 degree rotation" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Update with full 360 degree rotation"
+Randomness seeded to: 3392637418
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Update with full 360 degree rotation" end time: Feb 16 12:53 Eastern Standard Time
+"Update with full 360 degree rotation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/39 Testing: Update with angle wrapping (350 to 10 degrees)
+17/39 Test: Update with angle wrapping (350 to 10 degrees)
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Update with angle wrapping (350 to 10 degrees)"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Update with angle wrapping (350 to 10 degrees)" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Update with angle wrapping (350 to 10 degrees)"
+Randomness seeded to: 1339017476
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Update with angle wrapping (350 to 10 degrees)" end time: Feb 16 12:53 Eastern Standard Time
+"Update with angle wrapping (350 to 10 degrees)" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/39 Testing: Dual axis independent angle updates
+18/39 Test: Dual axis independent angle updates
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Dual axis independent angle updates"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Dual axis independent angle updates" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Dual axis independent angle updates"
+Randomness seeded to: 421081570
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Dual axis independent angle updates" end time: Feb 16 12:53 Eastern Standard Time
+"Dual axis independent angle updates" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/39 Testing: Dual axis different CPR values
+19/39 Test: Dual axis different CPR values
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Dual axis different CPR values"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Dual axis different CPR values" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Dual axis different CPR values"
+Randomness seeded to: 1985002215
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Dual axis different CPR values" end time: Feb 16 12:53 Eastern Standard Time
+"Dual axis different CPR values" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/39 Testing: Formatted output for dual axis
+20/39 Test: Formatted output for dual axis
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Formatted output for dual axis"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Formatted output for dual axis" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Formatted output for dual axis"
+Randomness seeded to: 1602642343
+===============================================================================
+All tests passed (5 assertions in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Formatted output for dual axis" end time: Feb 16 12:53 Eastern Standard Time
+"Formatted output for dual axis" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/39 Testing: Single axis mode ignores axis 2 updates
+21/39 Test: Single axis mode ignores axis 2 updates
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Single axis mode ignores axis 2 updates"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Single axis mode ignores axis 2 updates" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Single axis mode ignores axis 2 updates"
+Randomness seeded to: 1881352649
+===============================================================================
+All tests passed (3 assertions in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Single axis mode ignores axis 2 updates" end time: Feb 16 12:53 Eastern Standard Time
+"Single axis mode ignores axis 2 updates" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/39 Testing: Formatted output for single axis
+22/39 Test: Formatted output for single axis
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Formatted output for single axis"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Formatted output for single axis" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Formatted output for single axis"
+Randomness seeded to: 1487821902
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Formatted output for single axis" end time: Feb 16 12:53 Eastern Standard Time
+"Formatted output for single axis" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/39 Testing: CPR bounds checking (minimum)
+23/39 Test: CPR bounds checking (minimum)
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "CPR bounds checking (minimum)"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"CPR bounds checking (minimum)" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "CPR bounds checking (minimum)"
+Randomness seeded to: 3839427715
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"CPR bounds checking (minimum)" end time: Feb 16 12:53 Eastern Standard Time
+"CPR bounds checking (minimum)" time elapsed: 00:00:00
+----------------------------------------------------------
+
+24/39 Testing: CPR bounds checking (maximum)
+24/39 Test: CPR bounds checking (maximum)
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "CPR bounds checking (maximum)"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"CPR bounds checking (maximum)" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "CPR bounds checking (maximum)"
+Randomness seeded to: 1019000753
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"CPR bounds checking (maximum)" end time: Feb 16 12:53 Eastern Standard Time
+"CPR bounds checking (maximum)" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/39 Testing: Set CPR for all axes
+25/39 Test: Set CPR for all axes
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Set CPR for all axes"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Set CPR for all axes" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Set CPR for all axes"
+Randomness seeded to: 877523787
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Set CPR for all axes" end time: Feb 16 12:53 Eastern Standard Time
+"Set CPR for all axes" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/39 Testing: Set CPR for specific axis
+26/39 Test: Set CPR for specific axis
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Set CPR for specific axis"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Set CPR for specific axis" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Set CPR for specific axis"
+Randomness seeded to: 4045940756
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Set CPR for specific axis" end time: Feb 16 12:53 Eastern Standard Time
+"Set CPR for specific axis" time elapsed: 00:00:00
+----------------------------------------------------------
+
+27/39 Testing: Index signal at 0 degrees with A=0 B=0
+27/39 Test: Index signal at 0 degrees with A=0 B=0
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Index signal at 0 degrees with A=0 B=0"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Index signal at 0 degrees with A=0 B=0" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Index signal at 0 degrees with A=0 B=0"
+Randomness seeded to: 963353439
+===============================================================================
+All tests passed (3 assertions in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Index signal at 0 degrees with A=0 B=0" end time: Feb 16 12:53 Eastern Standard Time
+"Index signal at 0 degrees with A=0 B=0" time elapsed: 00:00:00
+----------------------------------------------------------
+
+28/39 Testing: Index signal away from index position
+28/39 Test: Index signal away from index position
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Index signal away from index position"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Index signal away from index position" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Index signal away from index position"
+Randomness seeded to: 3617903121
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Index signal away from index position" end time: Feb 16 12:53 Eastern Standard Time
+"Index signal away from index position" time elapsed: 00:00:00
+----------------------------------------------------------
+
+29/39 Testing: Index signal returns when crossing 0/360
+29/39 Test: Index signal returns when crossing 0/360
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Index signal returns when crossing 0/360"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Index signal returns when crossing 0/360" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Index signal returns when crossing 0/360"
+Randomness seeded to: 3327248306
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_quadrature_output.exe is a Catch2 v3.4.0 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Index signal returns when crossing 0/360
+-------------------------------------------------------------------------------
+C:/Users/alexx/SENIOR_DESIGN/test_quadrature_output.cpp:313
+...............................................................................
+
+C:/Users/alexx/SENIOR_DESIGN/test_quadrature_output.cpp:321: FAILED:
+  REQUIRE( qo.getIndex(0) == 1 )
+with expansion:
+  0 == 1
+
+===============================================================================
+test cases: 1 | 1 failed
+assertions: 1 | 1 failed
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Failed.
+"Index signal returns when crossing 0/360" end time: Feb 16 12:53 Eastern Standard Time
+"Index signal returns when crossing 0/360" time elapsed: 00:00:00
+----------------------------------------------------------
+
+30/39 Testing: Reset index at 0 degrees
+30/39 Test: Reset index at 0 degrees
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Reset index at 0 degrees"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Reset index at 0 degrees" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Reset index at 0 degrees"
+Randomness seeded to: 975091473
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Reset index at 0 degrees" end time: Feb 16 12:53 Eastern Standard Time
+"Reset index at 0 degrees" time elapsed: 00:00:00
+----------------------------------------------------------
+
+31/39 Testing: Reset does not occur away from index position
+31/39 Test: Reset does not occur away from index position
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Reset does not occur away from index position"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Reset does not occur away from index position" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Reset does not occur away from index position"
+Randomness seeded to: 4262008277
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Reset does not occur away from index position" end time: Feb 16 12:53 Eastern Standard Time
+"Reset does not occur away from index position" time elapsed: 00:00:00
+----------------------------------------------------------
+
+32/39 Testing: Switch from 2-axis to 1-axis mode
+32/39 Test: Switch from 2-axis to 1-axis mode
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Switch from 2-axis to 1-axis mode"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Switch from 2-axis to 1-axis mode" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Switch from 2-axis to 1-axis mode"
+Randomness seeded to: 4192255366
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Switch from 2-axis to 1-axis mode" end time: Feb 16 12:53 Eastern Standard Time
+"Switch from 2-axis to 1-axis mode" time elapsed: 00:00:00
+----------------------------------------------------------
+
+33/39 Testing: Switch from 1-axis to 2-axis mode
+33/39 Test: Switch from 1-axis to 2-axis mode
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Switch from 1-axis to 2-axis mode"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Switch from 1-axis to 2-axis mode" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Switch from 1-axis to 2-axis mode"
+Randomness seeded to: 2530442864
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"Switch from 1-axis to 2-axis mode" end time: Feb 16 12:53 Eastern Standard Time
+"Switch from 1-axis to 2-axis mode" time elapsed: 00:00:00
+----------------------------------------------------------
+
+34/39 Testing: Complete rotation sequence
+34/39 Test: Complete rotation sequence
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Complete rotation sequence"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Complete rotation sequence" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Complete rotation sequence"
+Randomness seeded to: 215943761
+===============================================================================
+All tests passed (2 assertions in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Complete rotation sequence" end time: Feb 16 12:53 Eastern Standard Time
+"Complete rotation sequence" time elapsed: 00:00:00
+----------------------------------------------------------
+
+35/39 Testing: Oscillating motion
+35/39 Test: Oscillating motion
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Oscillating motion"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Oscillating motion" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Oscillating motion"
+Randomness seeded to: 2352477756
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_quadrature_output.exe is a Catch2 v3.4.0 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Oscillating motion
+-------------------------------------------------------------------------------
+C:/Users/alexx/SENIOR_DESIGN/test_quadrature_output.cpp:387
+...............................................................................
+
+C:/Users/alexx/SENIOR_DESIGN/test_quadrature_output.cpp:399: FAILED:
+  REQUIRE( pos_back < pos_forward )
+with expansion:
+  15929 (0x3e39) < 455 (0x1c7)
+
+===============================================================================
+test cases: 1 | 1 failed
+assertions: 2 | 1 passed | 1 failed
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Failed.
+"Oscillating motion" end time: Feb 16 12:53 Eastern Standard Time
+"Oscillating motion" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/39 Testing: CSV output format consistency
+36/39 Test: CSV output format consistency
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "CSV output format consistency"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"CSV output format consistency" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "CSV output format consistency"
+Randomness seeded to: 3487059573
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"CSV output format consistency" end time: Feb 16 12:53 Eastern Standard Time
+"CSV output format consistency" time elapsed: 00:00:00
+----------------------------------------------------------
+
+37/39 Testing: Angle near 360 boundary
+37/39 Test: Angle near 360 boundary
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Angle near 360 boundary"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Angle near 360 boundary" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Angle near 360 boundary"
+Randomness seeded to: 2146528642
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Angle near 360 boundary" end time: Feb 16 12:53 Eastern Standard Time
+"Angle near 360 boundary" time elapsed: 00:00:00
+----------------------------------------------------------
+
+38/39 Testing: Very small angle increments
+38/39 Test: Very small angle increments
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Very small angle increments"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Very small angle increments" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Very small angle increments"
+Randomness seeded to: 766921956
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Very small angle increments" end time: Feb 16 12:53 Eastern Standard Time
+"Very small angle increments" time elapsed: 00:00:00
+----------------------------------------------------------
+
+39/39 Testing: Large angle jumps
+39/39 Test: Large angle jumps
+Command: "C:/Users/alexx/SENIOR_DESIGN/build/test_quadrature_output.exe" "Large angle jumps"
+Directory: C:/Users/alexx/SENIOR_DESIGN/build
+"Large angle jumps" start time: Feb 16 12:53 Eastern Standard Time
+Output:
+----------------------------------------------------------
+Filters: "Large angle jumps"
+Randomness seeded to: 3403982886
+===============================================================================
+All tests passed (1 assertion in 1 test case)
+
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"Large angle jumps" end time: Feb 16 12:53 Eastern Standard Time
+"Large angle jumps" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Feb 16 12:53 Eastern Standard Time
