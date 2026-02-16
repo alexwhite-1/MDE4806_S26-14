@@ -1,3 +1,4 @@
-﻿# Quadrature_S26-14
-This repository contains the files related to quadrature output and decoding for the S26-14 Framatome Quadrature Inclinometer senior design project. It also contains the GUI for controlling the robotic platform which we will use to demonstrate the inclinometer at expo.
+﻿# MDE4806_S26-14
+This repository contains the files related to the MDE4806 S26-14 project.
+
 
