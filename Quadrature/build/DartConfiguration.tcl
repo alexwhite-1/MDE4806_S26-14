@@ -4,8 +4,8 @@
 
 
 # Configuration directories and files
-SourceDirectory: C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature
-BuildDirectory: C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build
+SourceDirectory: C:/Users/alexx/SENIOR_DESIGN
+BuildDirectory: C:/Users/alexx/SENIOR_DESIGN/build
 
 # Where to place the cost data store
 CostDataFile: 
@@ -27,7 +27,7 @@ SubmitInactivityTimeout:
 NightlyStartTime: 00:00:00 EDT
 
 # Commands for the build/test/submit cycle
-ConfigureCommand: "C:/Strawberry/c/bin/cmake.exe" "C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature"
+ConfigureCommand: "C:/Strawberry/c/bin/cmake.exe" "C:/Users/alexx/SENIOR_DESIGN"
 MakeCommand: C:\Strawberry\c\bin\cmake.exe --build . --config "${CTEST_CONFIGURATION_TYPE}"
 DefaultCTestConfigurationType: Release
 
@@ -45,7 +45,7 @@ SVNOptions:
 SVNUpdateOptions: 
 
 # Git options
-GITCommand: 
+GITCommand: C:/Program Files/Git/cmd/git.exe
 GITInitSubmodules: 
 GITUpdateOptions: 
 GITUpdateCustom: 
@@ -58,9 +58,9 @@ P4UpdateOptions:
 P4UpdateCustom: 
 
 # Generic update command
-UpdateCommand: 
+UpdateCommand: C:/Program Files/Git/cmd/git.exe
 UpdateOptions: 
-UpdateType: 
+UpdateType: git
 
 # Compiler info
 Compiler: C:/Strawberry/c/bin/c++.exe

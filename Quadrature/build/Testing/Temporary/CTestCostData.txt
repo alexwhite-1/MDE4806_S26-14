@@ -1,0 +1,159 @@
+QuadratureOutput 0 0
+QuadratureOutput 0 0
+QuadratureOutput 0 0
+QuadratureOutput 0 0
+Initialize 0 1
+Initialize 0 1
+Initialize 0 1
+Initialize 0 0
+Quadrature 0 0
+Quadrature 0 0
+Quadrature 0 0
+Quadrature 0 0
+Update 0 0
+Update 0 0
+Update 0 90
+Update 0 0
+Update 0 0
+Dual 0 0
+Dual 0 0
+Formatted 0 0
+Single 0 0
+Formatted 0 0
+CPR 0 0
+CPR 0 0
+Set 0 0
+Set 0 0
+Index 0 0
+Index 0 0
+Index 0 0
+Reset 0 0
+Reset 0 0
+Switch 0 2
+Switch 0 1
+Complete 0 0
+Oscillating 0 0
+CSV 0 0
+Angle 0 360
+Very 0 0
+Large 0 0
+QuadratureOutput 0 0
+QuadratureOutput 0 0
+QuadratureOutput 0 0
+QuadratureOutput 0 0
+Initialize 0 1
+Initialize 0 1
+Initialize 0 1
+Initialize 0 0
+Quadrature 0 0
+Quadrature 0 0
+Quadrature 0 0
+Quadrature 0 0
+Update 0 0
+Update 0 0
+Update 0 90
+Update 0 0
+Update 0 0
+Dual 0 0
+Dual 0 0
+Formatted 0 0
+Single 0 0
+Formatted 0 0
+CPR 0 0
+CPR 0 0
+Set 0 0
+Set 0 0
+Index 0 0
+Index 0 0
+Index 0 0
+Reset 0 0
+Reset 0 0
+Switch 0 2
+Switch 0 1
+Complete 0 0
+Oscillating 0 0
+CSV 0 0
+Angle 0 360
+Very 0 0
+Large 0 0
+QuadratureOutput 0 0
+QuadratureOutput 0 0
+QuadratureOutput 0 0
+QuadratureOutput 0 0
+Initialize 0 1
+Initialize 0 1
+Initialize 0 1
+Initialize 0 0
+Quadrature 0 0
+Quadrature 0 0
+Quadrature 0 0
+Quadrature 0 0
+Update 0 0
+Update 0 0
+Update 0 90
+Update 0 0
+Update 0 0
+Dual 0 0
+Dual 0 0
+Formatted 0 0
+Single 0 0
+Formatted 0 0
+CPR 0 0
+CPR 0 0
+Set 0 0
+Set 0 0
+Index 0 0
+Index 0 0
+Index 0 0
+Reset 0 0
+Reset 0 0
+Switch 0 2
+Switch 0 1
+Complete 0 0
+Oscillating 0 0
+CSV 0 0
+Angle 0 360
+Very 0 0
+Large 0 0
+QuadratureOutput initialization with default parameters 1 0.0181058
+QuadratureOutput initialization with custom CPR 1 0.0229858
+QuadratureOutput initialization with single axis 1 0.0246784
+QuadratureOutput initialization with dual axis 1 0.0211718
+Initialize axis 1 at 0 degrees 1 0.0250948
+Initialize axis 1 at 90 degrees 1 0.0245105
+Initialize axis 1 at 360 degrees (wraps to 0) 1 0.0221713
+Initialize dual axis 1 0.026392
+Quadrature pattern at 0 degrees 1 0.0224849
+Quadrature pattern at 90 degrees 1 0.0245733
+Quadrature pattern at 180 degrees 1 0.0302209
+Quadrature pattern at 270 degrees 1 0.0252452
+Update with small positive angle change 1 0.0287725
+Update with small negative angle change 1 0.0240308
+Update with 90 degree rotation 1 0.0260437
+Update with full 360 degree rotation 1 0.02636
+Update with angle wrapping (350 to 10 degrees) 1 0.028793
+Dual axis independent angle updates 1 0.0211163
+Dual axis different CPR values 1 0.0284628
+Formatted output for dual axis 1 0.0236939
+Single axis mode ignores axis 2 updates 1 0.0261111
+Formatted output for single axis 1 0.0266948
+CPR bounds checking (minimum) 1 0.0291416
+CPR bounds checking (maximum) 1 0.0256453
+Set CPR for all axes 1 0.033497
+Set CPR for specific axis 1 0.0334681
+Index signal at 0 degrees with A=0 B=0 1 0.0305089
+Index signal away from index position 1 0.0301827
+Index signal returns when crossing 0/360 0 0
+Reset index at 0 degrees 1 0.0297586
+Reset does not occur away from index position 1 0.0226613
+Switch from 2-axis to 1-axis mode 1 0.0347448
+Switch from 1-axis to 2-axis mode 1 0.0263177
+Complete rotation sequence 1 0.0246901
+Oscillating motion 0 0
+CSV output format consistency 1 0.0261772
+Angle near 360 boundary 1 0.024714
+Very small angle increments 1 0.0198249
+Large angle jumps 1 0.0239072
+---
+Index signal returns when crossing 0/360
+Oscillating motion

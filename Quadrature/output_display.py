@@ -1,8 +1,8 @@
-"""Live display for quadrature output (top) and associated angles (below).
-
-Spawns `quad_out_script1.py` to receive simulated CSV data:
-Format: Axis1A,Axis1B,Axis2A,Axis2B,Index,Angle1,Angle2
-
+"""Author: Alex White, 2/8/2026
+The purpose of this file is as a live display for quadrature output (top) and associated angles (below).
+Intended for use at expo or other demos, necessarily will need to be run at a much slower speed than the 
+actual hardware in order to be visually interpretable. Intended to be used along with python testing scripts,
+which can be found in the other code in the folder.
 Usage: python output_display.py
 """
 import subprocess
@@ -13,7 +13,7 @@ import time
 import sys
 
 SCRIPT = 'quad_out_script1.py'
-SAMPLES = 400  # how many time columns to keep for waveform
+SAMPLES = 160  # how many time columns to keep for waveform (zoomed in)
 NUM_AXES = None  # auto-detect from first CSV line
 
 
@@ -23,8 +23,8 @@ class LiveDisplay(tk.Tk):
 		self.title('Quadrature Output Live Display')
 		self.resizable(False, False)
 
-		self.canvas_w = 1200
-		self.canvas_h = 360
+		self.canvas_w = 1000
+		self.canvas_h = 500
 		# allow resizing and expand canvas
 		self.canvas = tk.Canvas(self, width=self.canvas_w, height=self.canvas_h, bg='white')
 		self.canvas.pack(fill='both', expand=True, padx=8, pady=8)
@@ -32,9 +32,9 @@ class LiveDisplay(tk.Tk):
 		# labels for angles below
 		self.angle_frame = tk.Frame(self)
 		self.angle_frame.pack(fill='x', padx=8, pady=(0,8))
-		self.angle1_label = tk.Label(self.angle_frame, text='Axis1: --.-°', font=('Consolas', 14))
+		self.angle1_label = tk.Label(self.angle_frame, text='Axis1: --.-°', font=('Consolas', 18))
 		self.angle1_label.pack(side='left', padx=8)
-		self.angle2_label = tk.Label(self.angle_frame, text='Axis2: --.-°', font=('Consolas', 14))
+		self.angle2_label = tk.Label(self.angle_frame, text='Axis2: --.-°', font=('Consolas', 18))
 		self.angle2_label.pack(side='left', padx=8)
 
 		# buffers for waveform: each holds last SAMPLES of 0/1
@@ -45,10 +45,10 @@ class LiveDisplay(tk.Tk):
 
 		# current index and num axes
 		self.index = 0
-		self.num_axes = 2  # will be auto-detected on first read
+		self.num_axes = 1  # will be auto-detected on first read
 
 		# drawing params (will be recalculated each redraw)
-		self.row_height = 80
+		self.row_height = 120
 		self.col_w = max(1, self.canvas_w // SAMPLES)
 
 		# start subprocess reader
@@ -57,8 +57,8 @@ class LiveDisplay(tk.Tk):
 		self.running = True
 		self.start_script()
 
-		# schedule redraw
-		self.after(30, self.redraw)
+		# schedule redraw (100 ms = 10 Hz to match simulator slowdown)
+		self.after(100, self.redraw)
 
 	def start_script(self):
 		try:
@@ -134,24 +134,29 @@ class LiveDisplay(tk.Tk):
 		
 		for i, (buf, label) in enumerate(buffers):
 			y0 = padding + i * self.row_height
-			y1 = y0 + self.row_height - 8
+			y_high = y0 + 10
+			y_low = y0 + self.row_height - 18
 			# draw row label
-			self.canvas.create_text(8, (y0+y1)/2, anchor='w', text=label, font=('Consolas', 12))
-			# draw waveform columns from right to left
-			x = self.canvas_w - self.col_w
-			# make a snapshot copy to avoid deque mutation during iteration
+			self.canvas.create_text(8, (y_high + y_low) / 2, anchor='w', text=label, font=('Consolas', 16))
+			# draw continuous waveform line
 			try:
 				snapshot = list(buf)
 			except Exception:
 				continue
-			for v in reversed(snapshot):
-				color = 'green' if v else 'lightgrey'
-				# represent high as taller bar
-				if v:
-					self.canvas.create_rectangle(x, y0+2, x+self.col_w-1, y1-2, fill=color, outline='')
-				else:
-					self.canvas.create_rectangle(x, y1-6, x+self.col_w-1, y1-2, fill=color, outline='')
-				x -= self.col_w
+			# build line coordinates from left to right (oldest to newest)
+			coords = []
+			x = self.canvas_w - self.col_w * len(snapshot)
+			for v in snapshot:
+				y = y_high if v else y_low
+				coords.extend([x, y])
+				x += self.col_w
+			# draw the continuous line if we have enough points
+			if len(coords) >= 4:
+				self.canvas.create_line(coords, fill='green', width=2, smooth=False)
+			
+			# draw dividing line between rows
+			y_divider = y0 + self.row_height
+			self.canvas.create_line(60, y_divider, self.canvas_w, y_divider, fill='black', width=1)
 
 		# draw index indicator at top-right
 		idx_color = 'red' if self.index else 'lightgrey'
@@ -159,7 +164,7 @@ class LiveDisplay(tk.Tk):
 		self.canvas.create_text(self.canvas_w-60, 18, text='IDX', font=('Consolas', 10))
 
 		if self.running:
-			self.after(30, self.redraw)
+			self.after(100, self.redraw)
 
 	def on_close(self):
 		self.running = False
