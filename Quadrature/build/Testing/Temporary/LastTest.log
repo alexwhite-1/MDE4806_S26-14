@@ -1,13 +1,13 @@
-Start testing: Mar 03 16:25 Eastern Standard Time
+Start testing: Mar 04 13:35 Eastern Standard Time
 ----------------------------------------------------------
 1/2 Testing: QuadratureOutputTests
 1/2 Test: QuadratureOutputTests
 Command: "C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build/test_quadrature_output.exe"
 Directory: C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build
-"QuadratureOutputTests" start time: Mar 03 16:25 Eastern Standard Time
+"QuadratureOutputTests" start time: Mar 04 13:35 Eastern Standard Time
 Output:
 ----------------------------------------------------------
-Randomness seeded to: 1448320699
+Randomness seeded to: 1416055942
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 test_quadrature_output.exe is a Catch2 v3.4.0 host application.
@@ -43,7 +43,7 @@ assertions: 141 | 139 passed | 2 failed
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Failed.
-"QuadratureOutputTests" end time: Mar 03 16:25 Eastern Standard Time
+"QuadratureOutputTests" end time: Mar 04 13:35 Eastern Standard Time
 "QuadratureOutputTests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -51,10 +51,10 @@ Test Failed.
 2/2 Test: QuadratureDecoderTests
 Command: "C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build/test_quadrature_decoder.exe"
 Directory: C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build
-"QuadratureDecoderTests" start time: Mar 03 16:25 Eastern Standard Time
+"QuadratureDecoderTests" start time: Mar 04 13:35 Eastern Standard Time
 Output:
 ----------------------------------------------------------
-Randomness seeded to: 1873217503
+Randomness seeded to: 894692097
 ===============================================================================
 No tests ran
 
@@ -62,8 +62,8 @@ No tests ran
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Failed.
-"QuadratureDecoderTests" end time: Mar 03 16:25 Eastern Standard Time
+"QuadratureDecoderTests" end time: Mar 04 13:35 Eastern Standard Time
 "QuadratureDecoderTests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Mar 03 16:25 Eastern Standard Time
+End testing: Mar 04 13:35 Eastern Standard Time

@@ -313,12 +313,14 @@ TEST_CASE("Index signal away from index position", "[index]") {
 TEST_CASE("Index signal returns when crossing 0/360", "[index]") {
     QuadratureOutput qo(4096, 1);
     qo.initialize(350.0, 0.0);
-    
+    REQUIRE(qo.getPositionCount(0)==15928);
     // Move through 360/0 boundary with A=0, B=0
     qo.update(0.0, 0.0);
-    
+    //position should be at 0
+    REQUIRE(qo.getPositionCount(0)==16383);
     // Index should be high at the index position
     REQUIRE(qo.getIndex(0) == 1);
+    
 }
 
 // ============================================================================
@@ -535,3 +537,4 @@ TEST_CASE("Channel lead/lag behaviour during positive and negative motion", "[pu
         REQUIRE(backward[idx] == forward[forward.size()-1-idx]);
     }
 }
+    

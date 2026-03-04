@@ -13,8 +13,10 @@ import time
 import sys
 
 SCRIPT = 'quad_out_script1.py'
-SAMPLES = 160  # how many time columns to keep for waveform (zoomed in)
+SAMPLES = 1000  # how many time columns to keep for waveform (zoomed in)
 NUM_AXES = None  # auto-detect from first CSV line
+# 1 / (REDRAW TIME * 1000) = OUTPUT FREQUENCY
+REDRAW_TIME = 10 #KEEP ACCURATE WITH SCRIPT OUTPUT RATE, IN MS
 
 
 class LiveDisplay(tk.Tk):
@@ -57,8 +59,8 @@ class LiveDisplay(tk.Tk):
 		self.running = True
 		self.start_script()
 
-		# schedule redraw (100 ms = 10 Hz to match simulator slowdown)
-		self.after(100, self.redraw)
+		# schedule redraw (MATCH INPUT SCRIPT)
+		self.after(REDRAW_TIME, self.redraw)
 
 	def start_script(self):
 		try:
@@ -164,7 +166,7 @@ class LiveDisplay(tk.Tk):
 		self.canvas.create_text(self.canvas_w-60, 18, text='IDX', font=('Consolas', 10))
 
 		if self.running:
-			self.after(100, self.redraw)
+			self.after(REDRAW_TIME, self.redraw)
 
 	def on_close(self):
 		self.running = False
