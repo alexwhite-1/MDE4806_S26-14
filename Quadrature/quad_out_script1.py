@@ -34,7 +34,7 @@ def quadrature_pattern_from_angle(angle_deg):
     return patterns[state]
 
 def main():
-    output_rate = 0.05  # 20 Hz output (for display responsiveness)
+    output_rate = 0.002  # 500 Hz output (for display responsiveness)
     iteration = 0
     try:
         while True:
@@ -42,7 +42,7 @@ def main():
             t = iteration * output_rate
             
             # simulated angles (deg) - sweeping motion to show all quadrature states
-            raw_angle1 = (t * 1.0) % 360.0  # steady rotation at 1 deg/sec
+            raw_angle1 = (t * 1) % 360.0  # steady rotation at 1 deg/sec
             raw_angle2 = ((t * 10.0) + 90.0) % 360.0  # steady rotation at 10 deg/sec, offset 90 degrees
             
             # Quantize to CPR resolution and wrap to [0, 360)

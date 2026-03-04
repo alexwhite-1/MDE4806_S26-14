@@ -101,7 +101,7 @@ void QuadratureOutput::initialize(double initial_angle_axis1, double initial_ang
     // Initialize axis 1
     axis1.starting_angle = initial_angle_axis1;
     axis1.previous_angle = initial_angle_axis1;
-    axis1.position_count = 0;
+    axis1.position_count = (initial_angle_axis1 / 360) * (getCPR(0)*4);
     // assuming the angle is calibrated upon the beginning of the quadrature
     axis1.calibrated = true;
     // starting low, as there has been no change yet
@@ -118,7 +118,7 @@ void QuadratureOutput::initialize(double initial_angle_axis1, double initial_ang
     {
         axis2.starting_angle = initial_angle_axis2;
         axis2.previous_angle = initial_angle_axis2;
-        axis2.position_count = 0;
+        axis2.position_count = (initial_angle_axis2 / 360) * (getCPR(1)*4);;
         // assuming the angle is calibrated upon the beginning of the quadrature
         axis2.calibrated = true;
         // starting low, as there has been no change yet
@@ -161,7 +161,7 @@ void QuadratureOutput::update(double current_angle_axis1, double current_angle_a
 
         axis1.updateQuadratureStates(position_change);
 
-        if (axis1.position_count == 0)
+        if (axis1.position_count == 0 || axis1.position_count == (getCPR(0)*4)-1)
         {
             axis1.index = 1;
         }
@@ -199,7 +199,7 @@ void QuadratureOutput::update(double current_angle_axis1, double current_angle_a
 
         axis2.updateQuadratureStates(position_change);
 
-        if (axis2.position_count == 0)
+        if (axis2.position_count == 0 || axis2.position_count == (getCPR(1)*4)-1)
         {
             axis2.index = 1;
         }
