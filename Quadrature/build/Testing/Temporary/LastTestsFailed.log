@@ -1,2 +1,2 @@
-29:Index signal returns when crossing 0/360
-35:Oscillating motion
+1:QuadratureOutputTests
+2:QuadratureDecoderTests

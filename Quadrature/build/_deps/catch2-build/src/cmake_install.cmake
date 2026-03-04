@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/alexx/SENIOR_DESIGN/build/_deps/catch2-src/src
+# Install script for directory: C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build/_deps/catch2-src/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
