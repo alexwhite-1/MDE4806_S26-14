@@ -448,3 +448,90 @@ TEST_CASE("Large angle jumps", "[edge-cases]") {
     
     REQUIRE(qo.isCalibrated(0) == true);
 }
+
+// ============================================================================
+// TEST GROUP: Pulse Sequence Verification
+// ============================================================================
+
+TEST_CASE("Angle 0 to 180 back to 0 generates correct quadrature pulses", "[pulse-sequence]") {
+    QuadratureOutput qo(4, 1);
+    qo.initialize(0.0, 0.0);
+
+    const int positions_per_rev = 4 * qo.getCPR(0); // 16
+    int half_states = positions_per_rev / 2; // 8
+
+    auto expectedPattern = [](int pos)->std::pair<int,int> {
+        int state = pos % 4;
+        switch (state) {
+            case 0: return {0,0};
+            case 1: return {1,0};
+            case 2: return {1,1};
+            case 3: return {0,1};
+        }
+        return {0,0};
+    };
+
+    std::vector<double> angles;
+    for(int i=0;i<=half_states;i++){
+        angles.push_back((static_cast<double>(i)/positions_per_rev)*360.0);
+    }
+    for(int i=half_states-1;i>=0;i--){
+        angles.push_back((static_cast<double>(i)/positions_per_rev)*360.0);
+    }
+
+    int prevA = qo.getChannelA(0);
+    int prevB = qo.getChannelB(0);
+    for(double ang : angles){
+        qo.update(ang,0.0);
+        int a = qo.getChannelA(0);
+        int b = qo.getChannelB(0);
+        auto [expA, expB] = expectedPattern(qo.getPositionCount(0));
+        REQUIRE(a == expA);
+        REQUIRE(b == expB);
+
+        // ensure only one channel toggles at a time
+        if (a != prevA || b != prevB) {
+            REQUIRE(((a == prevA) ^ (b == prevB)) == true);
+        }
+        prevA = a;
+        prevB = b;
+    }
+}
+
+TEST_CASE("Channel lead/lag behaviour during positive and negative motion", "[pulse-sequence]") {
+    QuadratureOutput qo(4,1);
+    qo.initialize(0.0,0.0);
+
+    const int positions_per_rev = 4 * qo.getCPR(0);
+    int half_states = positions_per_rev / 2;
+
+    // forward half-cycle
+    std::vector<std::pair<int,int>> forward;
+    for(int i=0;i<=half_states;i++){
+        double ang = (static_cast<double>(i)/positions_per_rev)*360.0;
+        qo.update(ang,0.0);
+        forward.emplace_back(qo.getChannelA(0),qo.getChannelB(0));
+    }
+    // verify the sequence follows the 00->10->11->01 pattern
+    auto pattern = [&](int idx)->std::pair<int,int> {
+        int s = idx % 4;
+        switch(s){ case 0: return {0,0}; case 1: return {1,0}; case 2: return {1,1}; case 3: return {0,1}; }
+        return {0,0};
+    };
+    for(size_t idx=0; idx<forward.size(); ++idx) {
+        REQUIRE(forward[idx] == pattern(idx));
+    }
+
+    // backward half-cycle should be reverse of forward
+    qo.initialize(180.0,0.0);
+    std::vector<std::pair<int,int>> backward;
+    for(int i=half_states;i>=0;i--){
+        double ang = (static_cast<double>(i)/positions_per_rev)*360.0;
+        qo.update(ang,0.0);
+        backward.emplace_back(qo.getChannelA(0),qo.getChannelB(0));
+    }
+    REQUIRE(backward.size() == forward.size());
+    for(size_t idx=0; idx<backward.size(); ++idx) {
+        REQUIRE(backward[idx] == forward[forward.size()-1-idx]);
+    }
+}

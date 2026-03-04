@@ -1,34 +1,51 @@
 cmake_minimum_required(VERSION 3.15)
-project(QuadratureOutput)
+project(Quadrature)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add the main library
-add_library(quadrature_output SHARED
-    quadrature_output.cpp
-    quadrature_output.hpp
-)
-
-target_include_directories(quadrature_output PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-# Catch2 test setup
+# Fetch Catch2 if not already available
 include(FetchContent)
-FetchContent_Declare(Catch2
-    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_TAG v3.4.0
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG v3.4.0
 )
 FetchContent_MakeAvailable(Catch2)
 
-# Add test executable
-add_executable(test_quadrature_output
-    test_quadrature_output.cpp
+# Source files for the library
+set(QUADRATURE_SOURCES
+    quadrature_output.cpp
+    quadrature_decoder.cpp
 )
 
-target_link_libraries(test_quadrature_output PRIVATE Catch2::Catch2WithMain quadrature_output)
-target_include_directories(test_quadrature_output PRIVATE ${Catch2_SOURCE_DIR}/src)
+set(QUADRATURE_HEADERS
+    quadrature_output.hpp
+    quadrature_decoder.hpp
+)
+
+# Create library
+add_library(quadrature_lib STATIC ${QUADRATURE_SOURCES} ${QUADRATURE_HEADERS})
+target_include_directories(quadrature_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Test executable for QuadratureOutput
+add_executable(test_quadrature_output 
+    test_quadrature_output.cpp
+)
+target_link_libraries(test_quadrature_output PRIVATE quadrature_lib Catch2::Catch2WithMain)
+target_include_directories(test_quadrature_output PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Test executable for QuadratureDecoder
+add_executable(test_quadrature_decoder 
+    test_quadrature_decoder.cpp
+)
+target_link_libraries(test_quadrature_decoder PRIVATE quadrature_lib Catch2::Catch2WithMain)
+target_include_directories(test_quadrature_decoder PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Enable testing
+enable_testing()
 
 # Register tests with CTest
-include(CTest)
-include(Catch)
-catch_discover_tests(test_quadrature_output)
+add_test(NAME QuadratureOutputTests COMMAND test_quadrature_output)
+add_test(NAME QuadratureDecoderTests COMMAND test_quadrature_decoder)
+
