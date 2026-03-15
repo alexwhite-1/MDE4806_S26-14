@@ -3,6 +3,13 @@
 
 #include <stdbool.h>
 
+#include "quadrature_common.h"
+#include "quadrature_output.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     int cpr;
     long long absolute_count;               // position count (can be negative)
@@ -19,8 +26,13 @@ typedef struct {
 } QDecoderAxisState;
 
 typedef struct {
-    int placeholder;
+    int num_axes;
+    QDecoderAxisState axes[MAX_AXES];
 } QuadratureDecoder;
+
+//============================================================================================
+//                          QDecoderAxisState Implementation
+//============================================================================================
 
 QDecoderAxisState QDecoderAxisState_ConstructDefault();
 QDecoderAxisState QDecoderAxisState_Construct(int cpr);
@@ -42,5 +54,30 @@ int QDecoderAxisState_GetRevolutionCount(QDecoderAxisState* axis);
 bool QDecoderAxisState_HasErrors(QDecoderAxisState* axis);
 
 void QDecoderAxisState_ClearErrors(QDecoderAxisState* axis);
+
+//============================================================================================
+//                          QuadratureDecoder Implementation
+//============================================================================================
+
+QuadratureDecoder QuadratureDecoder_ConstructDefault();
+QuadratureDecoder QuadratureDecoder_Construct(int cpr, int num_axes);
+
+void QuadratureDecoder_SetCPR(QuadratureDecoder* decoder, int cpr);
+
+void QuadratureDecoder_SetNumAxes(QuadratureDecoder* decoder, int num_axes);
+
+void QuadratureDecoder_ProcessPulse(QuadratureDecoder* decoder, int axis, int ch_a, int ch_b, int index);
+
+void QuadratureDecoder_ProcessPulseOutput(QuadratureDecoder* decoder, const QuadratureOutput* output);
+
+void QuadratureDecoder_ProcessPulseChannels(QuadratureDecoder* decoder, int ch_a1, int ch_b1, int ch_a2, int ch_b2, int index);
+
+void QuadratureDecoder_GetFormattedOutput(const QuadratureDecoder* decoder, int axis, char* buffer, size_t buffer_size);
+
+void QuadratureDecoder_GetFormattedOutputDual(const QuadratureDecoder* decoder, char* buffer, size_t buffer_size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif 

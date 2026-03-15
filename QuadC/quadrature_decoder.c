@@ -1,17 +1,10 @@
 #include "quadrature_decoder.h"
 
+#include <stdio.h>
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-
-// Macros
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
-#define MIN(a,b) ((a) < (b) ? (a) : (b))
-
-static const int MIN_CPR = 1;
-static const int MAX_CPR = 9000;
-static const int MAX_AXES = 2;
-static const int QUADRATURE_STATES = 4;
 
 static const int VALID_TRANSITIONS[4][4] = {
     {0, -1,  1, -1},
@@ -23,6 +16,11 @@ static const int VALID_TRANSITIONS[4][4] = {
 static int EncodeState(int a, int b);
 static int ClampCPR(int cpr);
 static int GetDirection(int from, int to);
+//static bool IsWithinAxis(int axis);
+
+//============================================================================================
+//                          Helper Implementation
+//============================================================================================
 
 static int ClampCPR(int cpr) {
     return MAX(MIN_CPR, MIN(cpr, MAX_CPR));
@@ -180,79 +178,89 @@ void QDecoderAxisState_ClearErrors(QDecoderAxisState* axis) {
 //                          QuadratureDecoder Implementation
 //============================================================================================
 
-/*
-QuadratureDecoder::QuadratureDecoder(int cpr, int num_axes)
-    : num_axes_(std::min(num_axes, MAX_AXES)) {
-    for (int i = 0; i < MAX_AXES; ++i) {
-        cpr_[i] = clampCPR_(cpr);
-        state_[i] = {0, 0, 0, 0, false, 0, 0, 0};
+QuadratureDecoder QuadratureDecoder_ConstructDefault() {
+    return QuadratureDecoder_Construct(4096, 1);
+}
+
+QuadratureDecoder QuadratureDecoder_Construct(int cpr, int num_axes) {
+    QuadratureDecoder decoder;
+    decoder.num_axes = MIN(num_axes, MAX_AXES);
+    
+    cpr = ClampCPR(cpr); // Make sure to clamp
+
+    int i;
+    for (i = 0; i < MAX_AXES; i++) {
+        decoder.axes[i] = QDecoderAxisState_Construct(cpr);
+    }
+
+    return decoder;
+}
+
+void QuadratureDecoder_SetCPR(QuadratureDecoder* decoder, int cpr) {
+    cpr = ClampCPR(cpr);
+    for (int i = 0; i < decoder->num_axes; i++) {
+        decoder->axes[i].cpr = cpr;
     }
 }
 
-void QuadratureDecoder::setCPR(int cpr) {
-    int clamped = clampCPR_(cpr);
-    for (int i = 0; i < num_axes_; ++i) {
-        cpr_[i] = clamped;
+void QuadratureDecoder_SetNumAxes(QuadratureDecoder* decoder, int num_axes) {
+    decoder->num_axes = MIN(MAX(num_axes, 1), MAX_AXES);
+}
+
+void QuadratureDecoder_ProcessPulse(QuadratureDecoder* decoder, int axis, int ch_a, int ch_b, int index) {
+    if (axis < 0 || axis >= decoder->num_axes) return;
+    QDecoderAxisState_ProcessAxisPulse(&decoder->axes[axis], ch_a, ch_b, index);
+}
+
+void QuadratureDecoder_ProcessPulseOutput(QuadratureDecoder* decoder, const QuadratureOutput* output) {
+    QDecoderAxisState_ProcessAxisPulse(&decoder->axes[0], output->axis1.channel_a, output->axis1.channel_b, output->axis1.index);
+    if (decoder->num_axes == MAX_AXES) {
+        QDecoderAxisState_ProcessAxisPulse(&decoder->axes[1], output->axis2.channel_a, output->axis2.channel_b, output->axis2.index);
     }
 }
 
-void QuadratureDecoder::setNumAxes(int num_axes) {
-    num_axes_ = std::min(std::max(num_axes, 1), MAX_AXES);
-}
-
-void QuadratureDecoder::processPulse(const QuadratureOutput& output) {
-    if (num_axes_ == 1) {
-        processAxisPulse_(0, output.getChannelA(0), output.getChannelB(0), 
-                         output.getIndex(0));
-    } else if (num_axes_ == 2) {
-        processAxisPulse_(0, output.getChannelA(0), output.getChannelB(0), 
-                         output.getIndex(0));
-        processAxisPulse_(1, output.getChannelA(1), output.getChannelB(1), 
-                         output.getIndex(1));
+void QuadratureDecoder_ProcessPulseChannels(QuadratureDecoder* decoder, int ch_a1, int ch_b1, int ch_a2, int ch_b2, int index) {
+    QDecoderAxisState_ProcessAxisPulse(&decoder->axes[0], ch_a1, ch_b1, index);
+    if (decoder->num_axes == MAX_AXES) {
+        QDecoderAxisState_ProcessAxisPulse(&decoder->axes[1], ch_a2, ch_b2, index);
     }
 }
 
-void QuadratureDecoder::processPulse(int axis, int channel_a, 
-                                      int channel_b, int index_signal) {
-    if (axis < 0 || axis >= num_axes_) return;
-    processAxisPulse_(axis, channel_a, channel_b, index_signal);
+void QuadratureDecoder_GetFormattedOutput(const QuadratureDecoder* decoder, int axis, char* buffer, size_t buffer_size) {
+    if (axis < 0 || axis >= decoder->num_axes) {
+        if (buffer_size > 0) {
+            buffer[0] = '\0';
+        }
+        return;
+    }
+
+    snprintf(buffer, buffer_size, "%.3f,%d,%d",
+             QDecoderAxisState_GetAngleDeg(&decoder->axes[axis]),
+             QDecoderAxisState_GetPositionCount(&decoder->axes[axis]),
+             QDecoderAxisState_GetRevolutionCount(&decoder->axes[axis]));
 }
 
-void QuadratureDecoder::processPulse(int channel_a_1, int channel_b_1,
-                                      int channel_a_2, int channel_b_2, 
-                                      int index_signal) {
-    if (num_axes_ >= 1) {
-        processAxisPulse_(0, channel_a_1, channel_b_1, index_signal);
+void QuadratureDecoder_GetFormattedOutputDual(const QuadratureDecoder* decoder, char* buffer, size_t buffer_size) {
+    if (decoder->num_axes <= 0) {
+        if (buffer_size > 0) {
+            buffer[0] = '\0';
+        }
+        return;
     }
-    if (num_axes_ >= 2) {
-        processAxisPulse_(1, channel_a_2, channel_b_2, index_signal);
+
+    if (decoder->num_axes == 1) {
+        snprintf(buffer, buffer_size, "%.3f,%d,%d",
+                 QDecoderAxisState_GetAngleDeg(&decoder->axes[0]),
+                 QDecoderAxisState_GetPositionCount(&decoder->axes[0]),
+                 QDecoderAxisState_GetRevolutionCount(&decoder->axes[0]));
+    }
+    else {
+        snprintf(buffer, buffer_size, "%.3f,%d,%d,%.3f,%d,%d",
+                 QDecoderAxisState_GetAngleDeg(&decoder->axes[0]),
+                 QDecoderAxisState_GetPositionCount(&decoder->axes[0]),
+                 QDecoderAxisState_GetRevolutionCount(&decoder->axes[0]),
+                 QDecoderAxisState_GetAngleDeg(&decoder->axes[1]),
+                 QDecoderAxisState_GetPositionCount(&decoder->axes[1]),
+                 QDecoderAxisState_GetRevolutionCount(&decoder->axes[1]));
     }
 }
-
-*/
-
-/*
-
-std::string QuadratureDecoder::getFormattedOutput(int axis) const {
-    if (axis < 0 || axis >= num_axes_) return "";
-    std::ostringstream oss;
-    oss << std::fixed << std::setprecision(3) << getAngle(axis) << ","
-        << getPositionCount(axis) << ","
-        << getRevolutionCount(axis);
-    return oss.str();
-}
-
-std::string QuadratureDecoder::getFormattedOutputDual() const {
-    std::ostringstream oss;
-    oss << std::fixed << std::setprecision(3);
-    if (num_axes_ >= 1) {
-        oss << getAngle(0) << "," << getPositionCount(0) << "," 
-            << getRevolutionCount(0);
-    }
-    if (num_axes_ >= 2) {
-        oss << "," << getAngle(1) << "," << getPositionCount(1) << "," 
-            << getRevolutionCount(1);
-    }
-    return oss.str();
-}
-*/
