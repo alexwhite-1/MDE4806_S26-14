@@ -7,6 +7,10 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Structure to hold formatted quadrature output: Axis 1 A, Axis 1 B, Axis 2 A, Axis 2 B, Index
 typedef struct {
     int axis1_A;   // Axis 1 Channel A
@@ -73,6 +77,7 @@ void QOutputAxisState_SetCPR(QOutputAxisState* axis, int cpr_val);
 
 // Constructor
 QuadratureOutput QuadratureOutput_ConstructDefault();
+QuadratureOutput QuadratureOutput_ConstructCPR(int cpr);
 QuadratureOutput QuadratureOutput_Construct(int cpr, int num_axes);
 
 // Initialize both axes with starting angles
@@ -89,5 +94,9 @@ void QuadratureOutput_GetFormattedOutputString(const QuadratureOutput* output, c
 
 // Set number of axes
 void QuadratureOutput_SetNumAxes(QuadratureOutput* output, int num_axes);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif 

@@ -18,15 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 
-// Macros
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
-#define MIN(a,b) ((a) < (b) ? (a) : (b))
-
-// Constants
-static const double DEGREES_PER_REVOLUTION = 360.0;
-static const int MAX_CPR = 9000;
-static const int MIN_CPR = 1;
-static const double ANGLE_TOLERANCE = 0.001; // tolerance for floating point comparisons
+#include "quadrature_common.h"
 
 //============================================================================================
 //                          AxisState Implementation
@@ -163,6 +155,10 @@ bool QuadratureOutput_IsValidAxis(int axis) {
 // Constructor
 QuadratureOutput QuadratureOutput_ConstructDefault() {
     return QuadratureOutput_Construct(4096, 2);
+}
+
+QuadratureOutput QuadratureOutput_ConstructCPR(int cpr) {
+    return QuadratureOutput_Construct(cpr, 2);
 }
 
 QuadratureOutput QuadratureOutput_Construct(int cpr, int num_axes) {
