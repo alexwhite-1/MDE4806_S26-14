@@ -15,3 +15,10 @@ documentation for details.
    :maxdepth: 2
    :caption: Contents:
 
+   getting_started/getting_started
+   setup_and_assembly
+   setup
+   data_collection/data_collection
+   data_processing/data_processing
+   data_output/data_output
+   recieve

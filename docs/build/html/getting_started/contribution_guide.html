@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Contribution Guide &#8212; S26-14 Framatome Quadrature Inclinometer 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="contribution-guide">
+<span id="id1"></span><h1>Contribution Guide<a class="headerlink" href="#contribution-guide" title="Link to this heading">¶</a></h1>
+<section id="contributing-code">
+<h2>Contributing Code<a class="headerlink" href="#contributing-code" title="Link to this heading">¶</a></h2>
+<p>If you’re adding new code features, please consider following the workflow below:</p>
+<ol class="arabic">
+<li><dl class="simple">
+<dt>Write your code</dt><dd><p>After setting up the project you can get to writing new code. When working on a new feature to add to the code, please create a new local branch off of <code class="docutils literal notranslate"><span class="pre">dev</span></code> dwith a descriptive name.
+When you have made progress on your code, push your local branch to the github repository.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Write Tests</dt><dd><p>Untested code is broken code.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Write documentation</dt><dd><p>Please write detailed documentation for any new classes, functions, etc. you create.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Submit a pull request</dt><dd><p>After completing, testing, and documenting your code, submit a pull request with your finalized changes.</p>
+<p>Ensure your code passes all CI checks before submitting your pull request. You can check the status of your commits by checking the Actions tab in the Github web browser.</p>
+<p>After resolving all issues, request review from the github administrator, as this will be required for merging your code into the main code base.</p>
+</dd>
+</dl>
+</li>
+</ol>
+</section>
+<section id="writing-documentation">
+<h2>Writing Documentation<a class="headerlink" href="#writing-documentation" title="Link to this heading">¶</a></h2>
+<p>Another way to contribute is to write documentation for existing code. Documentation for this project is located in the <code class="docutils literal notranslate"><span class="pre">doc</span></code> directory and is written with reStructuredText.
+Sphinx is then used to generate these pages from the reStructuredText files.
+The following resources can help familiarize you with writing documentation with reStructuredText:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html">https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html</a></p></li>
+<li><p><a class="reference external" href="https://docutils.sourceforge.io/docs/user/rst/quickref.html">https://docutils.sourceforge.io/docs/user/rst/quickref.html</a></p></li>
+</ul>
+<section id="previewing-documentation">
+<h3>Previewing Documentation<a class="headerlink" href="#previewing-documentation" title="Link to this heading">¶</a></h3>
+<p>This documentation is intended to serve as a guide to the S26-14 Framatome Quadrature Inclinometer Project.
+Any changes made to the documentation and code can be previewed on your local machine by running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">html</span>
+</pre></div>
+</div>
+<p>inside the <code class="docutils literal notranslate"><span class="pre">doc</span></code> folder. If you made any changes to the Python code docstrings, make sure to re-install the Python code to see the documentation changes reflected.</p>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">S26-14 Framatome Quadrature Inclinometer</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Molly Shear, Max Linville, Timberly Tran, Richard Harrison, Alex White.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/getting_started/contribution_guide.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
