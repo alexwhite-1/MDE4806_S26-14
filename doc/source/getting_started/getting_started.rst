@@ -1,0 +1,16 @@
+.. _getting-started:
+
+Getting Started
+===============
+
+Table of Contents
+^^^^^^^^^^^^^^^^^
+
+.. toctree::
+   :maxdepth: 1
+
+   what_is_it
+   hardware_setup
+   software_setup
+   contribution_guide
+   testing_guide
