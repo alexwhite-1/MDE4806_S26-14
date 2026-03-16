@@ -1,49 +1,21 @@
-Start testing: Mar 04 13:35 Eastern Standard Time
+Start testing: Mar 16 10:53 Eastern Daylight Time
 ----------------------------------------------------------
 1/2 Testing: QuadratureOutputTests
 1/2 Test: QuadratureOutputTests
 Command: "C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build/test_quadrature_output.exe"
 Directory: C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build
-"QuadratureOutputTests" start time: Mar 04 13:35 Eastern Standard Time
+"QuadratureOutputTests" start time: Mar 16 10:53 Eastern Daylight Time
 Output:
 ----------------------------------------------------------
-Randomness seeded to: 1416055942
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-test_quadrature_output.exe is a Catch2 v3.4.0 host application.
-Run with -? for options
-
--------------------------------------------------------------------------------
-Index signal returns when crossing 0/360
--------------------------------------------------------------------------------
-C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/test_quadrature_output.cpp:313
-...............................................................................
-
-C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/test_quadrature_output.cpp:321: FAILED:
-  REQUIRE( qo.getIndex(0) == 1 )
-with expansion:
-  0 == 1
-
--------------------------------------------------------------------------------
-Oscillating motion
--------------------------------------------------------------------------------
-C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/test_quadrature_output.cpp:387
-...............................................................................
-
-C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/test_quadrature_output.cpp:399: FAILED:
-  REQUIRE( pos_back < pos_forward )
-with expansion:
-  15929 (0x3e39) < 455 (0x1c7)
-
+Randomness seeded to: 3989959095
 ===============================================================================
-test cases:  41 |  39 passed | 2 failed
-assertions: 141 | 139 passed | 2 failed
+All tests passed (143 assertions in 41 test cases)
 
 <end of output>
-Test time =   0.01 sec
+Test time =   0.04 sec
 ----------------------------------------------------------
-Test Failed.
-"QuadratureOutputTests" end time: Mar 04 13:35 Eastern Standard Time
+Test Passed.
+"QuadratureOutputTests" end time: Mar 16 10:53 Eastern Daylight Time
 "QuadratureOutputTests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -51,19 +23,19 @@ Test Failed.
 2/2 Test: QuadratureDecoderTests
 Command: "C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build/test_quadrature_decoder.exe"
 Directory: C:/Users/alexx/SENIOR_DESIGN/MDE4806_S26-14/Quadrature/build
-"QuadratureDecoderTests" start time: Mar 04 13:35 Eastern Standard Time
+"QuadratureDecoderTests" start time: Mar 16 10:53 Eastern Daylight Time
 Output:
 ----------------------------------------------------------
-Randomness seeded to: 894692097
+Randomness seeded to: 4115242365
 ===============================================================================
 No tests ran
 
 <end of output>
-Test time =   0.01 sec
+Test time =   0.03 sec
 ----------------------------------------------------------
 Test Failed.
-"QuadratureDecoderTests" end time: Mar 04 13:35 Eastern Standard Time
+"QuadratureDecoderTests" end time: Mar 16 10:53 Eastern Daylight Time
 "QuadratureDecoderTests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Mar 04 13:35 Eastern Standard Time
+End testing: Mar 16 10:53 Eastern Daylight Time
