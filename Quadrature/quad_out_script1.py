@@ -34,7 +34,7 @@ def quadrature_pattern_from_angle(angle_deg):
     return patterns[state]
 
 def main():
-    output_rate = 0.002  # 500 Hz output (for display responsiveness)
+    output_rate = 0.01  # 100 Hz output (for display responsiveness)
     iteration = 0
     try:
         while True:

@@ -197,10 +197,9 @@ Very 0 0
 Large 0 0
 Angle 0 0
 Channel 0 0
-QuadratureOutputTests 0 0
+QuadratureOutputTests 1 0.0373776
 QuadratureDecoderTests 0 0
 QuadratureOutputTests_Verbose 0 0
 QuadratureDecoderTests_Verbose 0 0
 ---
-QuadratureOutputTests
 QuadratureDecoderTests
