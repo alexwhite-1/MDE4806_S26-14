@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hardware Setup &#8212; S26-14 Framatome Quadrature Inclinometer 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Software Setup" href="software_setup.html" />
+    <link rel="prev" title="What is the Framatome Quadrature Inclinometer Project?" href="what_is_it.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="hardware-setup">
+<span id="id1"></span><h1>Hardware Setup<a class="headerlink" href="#hardware-setup" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="printed-circuit-board">
+<h2>Printed Circuit Board<a class="headerlink" href="#printed-circuit-board" title="Permalink to this headline">¶</a></h2>
+<p>A single PCB is built with the following components:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>1x Analog Devices ADXL354BEZ Accelerometer (<a class="reference external" href="https://www.digikey.com/short/bz30hb0m">datasheet</a>)</p></li>
+<li><p>1x TDK InvenSense IAM-20380 ADXRS290 Gyroscope (<a class="reference external" href="https://product.tdk.com/system/files/dam/doc/product/sensor/mortion-inertial/gyro/data_sheet/ds-000195-iam-20380_v1.0-typ.pdf">datasheet</a>)</p></li>
+<li><p>1x STM32 ASTM32G431CBT6 microcontroller (<a class="reference external" href="https://www.st.com/resource/en/datasheet/stm32g431c6.pdf">datasheet</a>)</p></li>
+<li><p>2x 150040BS73240 indicator LEDs (<a class="reference external" href="https://www.we-online.com/components/products/datasheet/150040BS73240.pdf">datasheet</a>)</p></li>
+<li><p>1x Diodes Incorporated AP63203WU-7 Buck Converter (<a class="reference external" href="https://www.diodes.com/assets/Datasheets/AP63200-AP63201-AP63203-AP63205.pdf">datasheet</a>)</p></li>
+<li><p>1x Analog Devices AD7689 Analog to Digital Converter (<a class="reference external" href="https://www.analog.com/media/en/technical-documentation/data-sheets/ad7689-kgd.pdf">datasheet</a>)</p></li>
+<li><p>2x 179-TS18515SL260SMTT Tactile Switches</p></li>
+<li><p>Capacitors: 3x 10uF, 14x 100nF, 2x 22uF, 1x 4.7uF, 2x 10nF, 5x 1uF, 1x 0.47uF</p></li>
+<li><p>Resistors: 2x 50 Ohm, 1x 10K Ohm, 2x 5.1 KOhm, 2x 100 KOhm</p></li>
+<li><p>1x 4.7 uH inductor</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All capacitors and resistors (and inductor) are 0603 METRIC sizes.</p>
+</div>
+</div></blockquote>
+<p>Assembly instructions and more details about the components can be found in the setup and asssembly section of this documentation:
+<a class="reference internal" href="../setup_and_assembly.html#setup-and-assembly"><span class="std std-ref">Setup and Assembly</span></a></p>
+<div class="section" id="assembly">
+<h3>Assembly<a class="headerlink" href="#assembly" title="Permalink to this headline">¶</a></h3>
+<p>The following steps outline the assembly of a single PCB:</p>
+<p>1.
+2.
+3.
+4.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">S26-14 Framatome Quadrature Inclinometer</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="getting_started.html">Getting Started</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="getting_started.html#table-of-contents">Table of Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_and_assembly.html">Setup and Assembly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup.html">setup module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_collection/data_collection.html">Data Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_processing/data_processing.html">Data Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_output/data_output.html">Data Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../recieve.html">recieve module</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="getting_started.html">Getting Started</a><ul>
+      <li>Previous: <a href="what_is_it.html" title="previous chapter">What is the Framatome Quadrature Inclinometer Project?</a></li>
+      <li>Next: <a href="software_setup.html" title="next chapter">Software Setup</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2026, Molly Shear, Max Linville, Timberly Tran, Richard Harrison, Alex White.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/getting_started/hardware_setup.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

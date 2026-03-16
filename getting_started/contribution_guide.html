@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Contribution Guide &#8212; S26-14 Framatome Quadrature Inclinometer 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Setup and Assembly" href="../setup_and_assembly.html" />
+    <link rel="prev" title="Software Setup" href="software_setup.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="contribution-guide">
+<span id="id1"></span><h1>Contribution Guide<a class="headerlink" href="#contribution-guide" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="contributing-code">
+<h2>Contributing Code<a class="headerlink" href="#contributing-code" title="Permalink to this headline">¶</a></h2>
+<p>If you’re adding new code features, please consider following the workflow below:</p>
+<ol class="arabic">
+<li><dl class="simple">
+<dt>Write your code</dt><dd><p>After setting up the project you can get to writing new code. When working on a new feature to add to the code, please create a new local branch off of <code class="docutils literal notranslate"><span class="pre">dev</span></code> dwith a descriptive name.
+When you have made progress on your code, push your local branch to the github repository.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Write Tests</dt><dd><p>Untested code is broken code.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Write documentation</dt><dd><p>Please write detailed documentation for any new classes, functions, etc. you create.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Submit a pull request</dt><dd><p>After completing, testing, and documenting your code, submit a pull request with your finalized changes.</p>
+<p>Ensure your code passes all CI checks before submitting your pull request. You can check the status of your commits by checking the Actions tab in the Github web browser.</p>
+<p>After resolving all issues, request review from the github administrator, as this will be required for merging your code into the main code base.</p>
+</dd>
+</dl>
+</li>
+</ol>
+</div>
+<div class="section" id="writing-documentation">
+<h2>Writing Documentation<a class="headerlink" href="#writing-documentation" title="Permalink to this headline">¶</a></h2>
+<p>Another way to contribute is to write documentation for existing code. Documentation for this project is located in the <code class="docutils literal notranslate"><span class="pre">doc</span></code> directory and is written with reStructuredText.
+Sphinx is then used to generate these pages from the reStructuredText files.
+The following resources can help familiarize you with writing documentation with reStructuredText:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html">https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html</a></p></li>
+<li><p><a class="reference external" href="https://docutils.sourceforge.io/docs/user/rst/quickref.html">https://docutils.sourceforge.io/docs/user/rst/quickref.html</a></p></li>
+</ul>
+<div class="section" id="previewing-documentation">
+<h3>Previewing Documentation<a class="headerlink" href="#previewing-documentation" title="Permalink to this headline">¶</a></h3>
+<p>This documentation is intended to serve as a guide to the S26-14 Framatome Quadrature Inclinometer Project.
+Any changes made to the documentation and code can be previewed on your local machine by running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">html</span>
+</pre></div>
+</div>
+<p>inside the <code class="docutils literal notranslate"><span class="pre">doc</span></code> folder. If you made any changes to the Python code docstrings, make sure to re-install the Python code to see the documentation changes reflected.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">S26-14 Framatome Quadrature Inclinometer</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="getting_started.html">Getting Started</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="getting_started.html#table-of-contents">Table of Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_and_assembly.html">Setup and Assembly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup.html">setup module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_collection/data_collection.html">Data Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_processing/data_processing.html">Data Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_output/data_output.html">Data Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../recieve.html">recieve module</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="getting_started.html">Getting Started</a><ul>
+      <li>Previous: <a href="software_setup.html" title="previous chapter">Software Setup</a></li>
+      <li>Next: <a href="../setup_and_assembly.html" title="next chapter">Setup and Assembly</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2026, Molly Shear, Max Linville, Timberly Tran, Richard Harrison, Alex White.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/getting_started/contribution_guide.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
