@@ -29,6 +29,9 @@ Assembly
 The following steps outline the assembly of a single PCB:
 
 1. 
-2. 
-3. 
+
+2.
+
+3.
+ 
 4. 
