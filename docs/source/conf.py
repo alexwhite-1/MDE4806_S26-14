@@ -26,6 +26,3 @@ exclude_patterns = []
 
 html_theme = 'classic'
 html_static_path = ['_static']
-
-# Add custom CSS file
-html_css_files = ['custom.css']
