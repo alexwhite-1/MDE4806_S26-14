@@ -1,0 +1,16 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Target the main content area and sidebar wrappers for full height */
+.documentwrapper, .sphinxsidebarwrapper {
+    min-height: 100vh; /* Use 100vh for full viewport height */
+    box-sizing: border-box; /* Ensures padding/border is included in height calculation */
+}
+
+/* Additional rule to ensure the main content div expands */
+div.document {
+    min-height: 100vh;
+}
