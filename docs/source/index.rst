@@ -11,10 +11,7 @@ S26-14 Framatome Quadrature Inclinometer documentation
    :maxdepth: 1
    :caption: Sections:
 
-   getting_started/getting_started
-   setup_and_assembly
-   setup
-   data_collection/data_collection
-   data_processing/data_processing
-   data_output/data_output
-   recieve
+   getting_started
+   data_collection
+   data_processing
+   data_output
