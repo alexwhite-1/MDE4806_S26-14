@@ -1,6 +1,0 @@
-.. _setup-and-assembly:
-
-##################
-Setup and Assembly
-##################
-

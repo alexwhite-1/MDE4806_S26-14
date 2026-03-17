@@ -26,3 +26,10 @@ exclude_patterns = []
 
 html_theme = 'classic'
 html_static_path = ['_static']
+
+html_theme_options = {
+    'collapse_navigation': False,  # Keeps the menu expanded
+    'sticky_navigation': True,     # Keeps menu visible on scroll
+    'navigation_depth': 4,         # Depth of the TOC
+    'includehidden': True,         # Includes hidden toctrees
+}
