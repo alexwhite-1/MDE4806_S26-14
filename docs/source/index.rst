@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-S26-14 Framatome Quadrature Inclinometer documentation
+S26-14 Framatome Quadrature Inclinometer Documentation
 ======================================================
 
 
@@ -15,3 +15,5 @@ S26-14 Framatome Quadrature Inclinometer documentation
    data_collection/data_collection
    data_processing/data_processing
    data_output/data_output
+
+   

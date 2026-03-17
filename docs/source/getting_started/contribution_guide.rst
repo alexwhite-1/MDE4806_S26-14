@@ -9,7 +9,7 @@ Contributing Code
 If you're adding new code features, please consider following the workflow below:
 
 1. Write your code
-    After setting up the project you can get to writing new code. When working on a new feature to add to the code, please create a new local branch off of ``dev`` dwith a descriptive name.
+    After setting up the project you can get to writing new code. When working on a new feature to add to the code, please create a new local branch with a descriptive name.
     When you have made progress on your code, push your local branch to the github repository.
 
 2. Write Tests
@@ -23,7 +23,6 @@ If you're adding new code features, please consider following the workflow below
 
     Ensure your code passes all CI checks before submitting your pull request. You can check the status of your commits by checking the Actions tab in the Github web browser.
 
-    After resolving all issues, request review from the github administrator, as this will be required for merging your code into the main code base.
 
 Writing Documentation
 #######################
@@ -44,5 +43,5 @@ Any changes made to the documentation and code can be previewed on your local ma
 
     make html
 
-inside the ``doc`` folder. If you made any changes to the Python code docstrings, make sure to re-install the Python code to see the documentation changes reflected.
+inside the ``doc`` folder. 
 
