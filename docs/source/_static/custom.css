@@ -15,13 +15,3 @@ div.document {
     min-height: 100vh;
 }
 
-/* Removes outer margins from the main page wrapper */
-div.document {
-    width: 100%;
-    margin: 0;
-}
-
-/*Ensures the inner body content uses all available space */
-div.bodywrapper {
-    margin: 0;
-}
