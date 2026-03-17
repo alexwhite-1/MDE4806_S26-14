@@ -9,9 +9,8 @@ S26-14 Framatome Quadrature Inclinometer documentation
 
 .. toctree::
    :maxdepth: 1
-   :caption: Sections:
 
-   getting_started
-   data_collection
-   data_processing
-   data_output
+   getting_started/getting_started
+   data_collection/data_collection
+   data_processing/data_processing
+   data_output/data_output

@@ -18,11 +18,11 @@ A single PCB is built with the following components:
  - Capacitors: 3x 10uF, 14x 100nF, 2x 22uF, 1x 4.7uF, 2x 10nF, 5x 1uF, 1x 0.47uF
  - Resistors: 2x 50 Ohm, 1x 10K Ohm, 2x 5.1 KOhm, 2x 100 KOhm
  - 1x 4.7 uH inductor
+ 
  .. note::
         All capacitors and resistors (and inductor) are 0603 METRIC sizes.
 
-Assembly instructions and more details about the components can be found in the setup and asssembly section of this documentation:
-:ref:`setup-and-assembly`
+
 
 Assembly
 ^^^^^^^^^
