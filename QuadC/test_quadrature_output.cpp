@@ -4,8 +4,6 @@
 #include <cmath>
 #include <iostream>
 
-const double TOLERANCE = 0.001;
-
 // ============================================================================
 // TEST GROUP: Initialization
 // ============================================================================
@@ -292,38 +290,40 @@ TEST_CASE("Set CPR for specific axis", "[cpr]") {
     REQUIRE(qo.axis2.cpr == 4096);  // unchanged
 }
 
-/*
 // ============================================================================
 // TEST GROUP: Index Signal
 // ============================================================================
 
 TEST_CASE("Index signal at 0 degrees with A=0 B=0", "[index]") {
-    QuadratureOutput qo(4096, 1);
-    qo.initialize(0.0, 0.0);
-    
-    REQUIRE(qo.getIndex(0) == 1);
-    REQUIRE(qo.getChannelA(0) == 0);
-    REQUIRE(qo.getChannelB(0) == 0);
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 1);
+    QuadratureOutput_Initialize(&qo, 0.0, 0.0);
+
+    REQUIRE(qo.axis1.index == 1);
+    REQUIRE(qo.axis1.channel_a == 0);
+    REQUIRE(qo.axis1.channel_b == 0);
 }
 
 TEST_CASE("Index signal away from index position", "[index]") {
-    QuadratureOutput qo(4096, 1);
-    qo.initialize(45.0, 0.0);
-    
-    REQUIRE(qo.getIndex(0) == 0);
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 1);
+    QuadratureOutput_Initialize(&qo, 45.0, 0.0);
+
+    REQUIRE(qo.axis1.index == 0);
 }
 
 TEST_CASE("Index signal returns when crossing 0/360", "[index]") {
-    QuadratureOutput qo(4096, 1);
-    qo.initialize(350.0, 0.0);
-    REQUIRE(qo.getPositionCount(0)==15928);
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 1);
+    QuadratureOutput_Initialize(&qo, 350.0, 0.0);
+
+    REQUIRE(qo.axis1.position_count == 15928);
+
     // Move through 360/0 boundary with A=0, B=0
-    qo.update(0.0, 0.0);
-    //position should be at 0
-    REQUIRE(qo.getPositionCount(0)==16383);
+    QuadratureOutput_Update(&qo, 0.0, 0.0);
+
+    // Position should be at final wrapped state before index correction logic
+    REQUIRE(qo.axis1.position_count == 16383);
+
     // Index should be high at the index position
-    REQUIRE(qo.getIndex(0) == 1);
-    
+    REQUIRE(qo.axis1.index == 1);
 }
 
 // ============================================================================
@@ -331,23 +331,23 @@ TEST_CASE("Index signal returns when crossing 0/360", "[index]") {
 // ============================================================================
 
 TEST_CASE("Reset index at 0 degrees", "[reset]") {
-    QuadratureOutput qo(4096, 1);
-    qo.initialize(45.0, 0.0);  // start away from index
-    qo.resetIndex(0, 0.0);
-    
-    REQUIRE(qo.getPositionCount(0) == 0);
-    REQUIRE(qo.getIndex(0) == 1);
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 1);
+    QuadratureOutput_Initialize(&qo, 45.0, 0.0);
+
+    QOutputAxisState_ResetIndex(&qo.axis1, 0.0);
+
+    REQUIRE(qo.axis1.position_count == 0);
+    REQUIRE(qo.axis1.index == 1);
 }
 
 TEST_CASE("Reset does not occur away from index position", "[reset]") {
-    QuadratureOutput qo(4096, 1);
-    qo.initialize(0.0, 0.0);
-    int pos_before = qo.getPositionCount(0);
-    
-    qo.resetIndex(0, 45.0);  // try to reset away from 0
-    
-    // Position should not change
-    REQUIRE(qo.getPositionCount(0) == pos_before);
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 1);
+    QuadratureOutput_Initialize(&qo, 0.0, 0.0);
+    int pos_before = qo.axis1.position_count;
+
+    QOutputAxisState_ResetIndex(&qo.axis1, 45.0);
+
+    REQUIRE(qo.axis1.position_count == pos_before);
 }
 
 // ============================================================================
@@ -355,19 +355,19 @@ TEST_CASE("Reset does not occur away from index position", "[reset]") {
 // ============================================================================
 
 TEST_CASE("Switch from 2-axis to 1-axis mode", "[axis-mode]") {
-    QuadratureOutput qo(4096, 2);
-    qo.initialize(45.0, 90.0);
-    
-    qo.setNumAxes(1);
-    REQUIRE(qo.getNumAxes() == 1);
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 2);
+    QuadratureOutput_Initialize(&qo, 45.0, 90.0);
+
+    QuadratureOutput_SetNumAxes(&qo, 1);
+    REQUIRE(qo.num_axes == 1);
 }
 
 TEST_CASE("Switch from 1-axis to 2-axis mode", "[axis-mode]") {
-    QuadratureOutput qo(4096, 1);
-    qo.initialize(45.0, 0.0);
-    
-    qo.setNumAxes(2);
-    REQUIRE(qo.getNumAxes() == 2);
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 1);
+    QuadratureOutput_Initialize(&qo, 45.0, 0.0);
+
+    QuadratureOutput_SetNumAxes(&qo, 2);
+    REQUIRE(qo.num_axes == 2);
 }
 
 // ============================================================================
@@ -375,46 +375,45 @@ TEST_CASE("Switch from 1-axis to 2-axis mode", "[axis-mode]") {
 // ============================================================================
 
 TEST_CASE("Complete rotation sequence", "[integration]") {
-    QuadratureOutput qo(4096, 1);
-    qo.initialize(0.0, 0.0);
-    
-    // Rotate through full circle in 4 steps
-    double angles[] = {0.0, 90.0, 180.0, 270.0, 360.0};
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 1);
+    QuadratureOutput_Initialize(&qo, 0.0, 0.0);
+
+    double angles[] = { 0.0, 90.0, 180.0, 270.0, 360.0 };
     for (double angle : angles) {
-        qo.update(angle, 0.0);
+        QuadratureOutput_Update(&qo, angle, 0.0);
     }
-    
-    // Should return to index position
-    REQUIRE(qo.getIndex(0) == 1);
-    REQUIRE(qo.getPositionCount(0) == 0);
+
+    REQUIRE(qo.axis1.index == 1);
+    REQUIRE(qo.axis1.position_count == 0);
 }
 
 TEST_CASE("Oscillating motion", "[integration]") {
-    QuadratureOutput qo(4096, 1);
-    qo.initialize(180.0, 0.0);
-    int initial_pos = qo.getPositionCount(0);
-    
-    // Oscillate around starting angle
-    qo.update(190.0, 0.0);
-    int pos_forward = qo.getPositionCount(0);
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 1);
+    QuadratureOutput_Initialize(&qo, 180.0, 0.0);
+    int initial_pos = qo.axis1.position_count;
+
+    QuadratureOutput_Update(&qo, 190.0, 0.0);
+    int pos_forward = qo.axis1.position_count;
     REQUIRE(pos_forward > initial_pos);
-    
-    qo.update(170.0, 0.0);
-    int pos_back = qo.getPositionCount(0);
+
+    QuadratureOutput_Update(&qo, 170.0, 0.0);
+    int pos_back = qo.axis1.position_count;
     REQUIRE(pos_back < pos_forward);
 }
 
 TEST_CASE("CSV output format consistency", "[integration]") {
-    QuadratureOutput qo(4096, 2);
-    qo.initialize(45.0, 90.0);
-    qo.update(46.0, 91.0);
-    
-    std::string csv = qo.getFormattedOutputString();
-    
-    // Count commas for dual-axis format (should have 4 commas for 5 values)
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 2);
+    QuadratureOutput_Initialize(&qo, 45.0, 90.0);
+    QuadratureOutput_Update(&qo, 46.0, 91.0);
+
+    char csv[64];
+    QuadratureOutput_GetFormattedOutputString(&qo, csv, sizeof(csv));
+
     int comma_count = 0;
-    for (char c : csv) {
-        if (c == ',') comma_count++;
+    for (const char* p = csv; *p != '\0'; ++p) {
+        if (*p == ',') {
+            comma_count++;
+        }
     }
     REQUIRE(comma_count == 4);
 }
@@ -424,34 +423,32 @@ TEST_CASE("CSV output format consistency", "[integration]") {
 // ============================================================================
 
 TEST_CASE("Angle near 360 boundary", "[edge-cases]") {
-    QuadratureOutput qo(4096, 1);
-    qo.initialize(359.9, 0.0);
-    
-    qo.update(0.1, 0.0);
-    
-    // Should handle small cross-boundary update
-    REQUIRE(qo.isCalibrated(0) == true);
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 1);
+    QuadratureOutput_Initialize(&qo, 359.9, 0.0);
+
+    QuadratureOutput_Update(&qo, 0.1, 0.0);
+
+    REQUIRE(qo.axis1.calibrated == true);
 }
 
 TEST_CASE("Very small angle increments", "[edge-cases]") {
-    QuadratureOutput qo(4096, 1);
-    qo.initialize(0.0, 0.0);
-    
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 1);
+    QuadratureOutput_Initialize(&qo, 0.0, 0.0);
+
     for (int i = 0; i < 100; i++) {
-        qo.update(0.001 * i, 0.0);
+        QuadratureOutput_Update(&qo, 0.001 * i, 0.0);
     }
-    
-    // Should accumulate correctly without errors
-    REQUIRE(qo.isCalibrated(0) == true);
+
+    REQUIRE(qo.axis1.calibrated == true);
 }
 
 TEST_CASE("Large angle jumps", "[edge-cases]") {
-    QuadratureOutput qo(4096, 1);
-    qo.initialize(0.0, 0.0);
-    
-    qo.update(350.0, 0.0);  // large jump
-    
-    REQUIRE(qo.isCalibrated(0) == true);
+    QuadratureOutput qo = QuadratureOutput_Construct(4096, 1);
+    QuadratureOutput_Initialize(&qo, 0.0, 0.0);
+
+    QuadratureOutput_Update(&qo, 350.0, 0.0);
+
+    REQUIRE(qo.axis1.calibrated == true);
 }
 
 // ============================================================================
@@ -459,85 +456,92 @@ TEST_CASE("Large angle jumps", "[edge-cases]") {
 // ============================================================================
 
 TEST_CASE("Angle 0 to 180 back to 0 generates correct quadrature pulses", "[pulse-sequence]") {
-    QuadratureOutput qo(4, 1);
-    qo.initialize(0.0, 0.0);
+    QuadratureOutput qo = QuadratureOutput_Construct(4, 1);
+    QuadratureOutput_Initialize(&qo, 0.0, 0.0);
 
-    const int positions_per_rev = 4 * qo.getCPR(0); // 16
-    int half_states = positions_per_rev / 2; // 8
+    const int positions_per_rev = 4 * qo.axis1.cpr;
+    int half_states = positions_per_rev / 2;
 
-    auto expectedPattern = [](int pos)->std::pair<int,int> {
+    auto expectedPattern = [](int pos)->std::pair<int, int> {
         int state = pos % 4;
         switch (state) {
-            case 0: return {0,0};
-            case 1: return {1,0};
-            case 2: return {1,1};
-            case 3: return {0,1};
+        case 0: return { 0,0 };
+        case 1: return { 1,0 };
+        case 2: return { 1,1 };
+        case 3: return { 0,1 };
         }
-        return {0,0};
-    };
+        return { 0,0 };
+        };
 
     std::vector<double> angles;
-    for(int i=0;i<=half_states;i++){
-        angles.push_back((static_cast<double>(i)/positions_per_rev)*360.0);
+    for (int i = 0; i <= half_states; i++) {
+        angles.push_back((static_cast<double>(i) / positions_per_rev) * 360.0);
     }
-    for(int i=half_states-1;i>=0;i--){
-        angles.push_back((static_cast<double>(i)/positions_per_rev)*360.0);
+    for (int i = half_states - 1; i >= 0; i--) {
+        angles.push_back((static_cast<double>(i) / positions_per_rev) * 360.0);
     }
 
-    int prevA = qo.getChannelA(0);
-    int prevB = qo.getChannelB(0);
-    for(double ang : angles){
-        qo.update(ang,0.0);
-        int a = qo.getChannelA(0);
-        int b = qo.getChannelB(0);
-        auto [expA, expB] = expectedPattern(qo.getPositionCount(0));
+    int prevA = qo.axis1.channel_a;
+    int prevB = qo.axis1.channel_b;
+
+    for (double ang : angles) {
+        QuadratureOutput_Update(&qo, ang, 0.0);
+        int a = qo.axis1.channel_a;
+        int b = qo.axis1.channel_b;
+
+        auto [expA, expB] = expectedPattern(qo.axis1.position_count);
         REQUIRE(a == expA);
         REQUIRE(b == expB);
 
-        // ensure only one channel toggles at a time
         if (a != prevA || b != prevB) {
             REQUIRE(((a == prevA) ^ (b == prevB)) == true);
         }
+
         prevA = a;
         prevB = b;
     }
 }
 
 TEST_CASE("Channel lead/lag behaviour during positive and negative motion", "[pulse-sequence]") {
-    QuadratureOutput qo(4,1);
-    qo.initialize(0.0,0.0);
+    QuadratureOutput qo = QuadratureOutput_Construct(4, 1);
+    QuadratureOutput_Initialize(&qo, 0.0, 0.0);
 
-    const int positions_per_rev = 4 * qo.getCPR(0);
+    const int positions_per_rev = 4 * qo.axis1.cpr;
     int half_states = positions_per_rev / 2;
 
-    // forward half-cycle
-    std::vector<std::pair<int,int>> forward;
-    for(int i=0;i<=half_states;i++){
-        double ang = (static_cast<double>(i)/positions_per_rev)*360.0;
-        qo.update(ang,0.0);
-        forward.emplace_back(qo.getChannelA(0),qo.getChannelB(0));
-    }
-    // verify the sequence follows the 00->10->11->01 pattern
-    auto pattern = [&](int idx)->std::pair<int,int> {
-        int s = idx % 4;
-        switch(s){ case 0: return {0,0}; case 1: return {1,0}; case 2: return {1,1}; case 3: return {0,1}; }
-        return {0,0};
-    };
-    for(size_t idx=0; idx<forward.size(); ++idx) {
-        REQUIRE(forward[idx] == pattern(idx));
+    std::vector<std::pair<int, int>> forward;
+    for (int i = 0; i <= half_states; i++) {
+        double ang = (static_cast<double>(i) / positions_per_rev) * 360.0;
+        QuadratureOutput_Update(&qo, ang, 0.0);
+        forward.emplace_back(qo.axis1.channel_a, qo.axis1.channel_b);
     }
 
-    // backward half-cycle should be reverse of forward
-    qo.initialize(180.0,0.0);
-    std::vector<std::pair<int,int>> backward;
-    for(int i=half_states;i>=0;i--){
-        double ang = (static_cast<double>(i)/positions_per_rev)*360.0;
-        qo.update(ang,0.0);
-        backward.emplace_back(qo.getChannelA(0),qo.getChannelB(0));
+    auto pattern = [&](int idx)->std::pair<int, int> {
+        int s = idx % 4;
+        switch (s) {
+        case 0: return { 0,0 };
+        case 1: return { 1,0 };
+        case 2: return { 1,1 };
+        case 3: return { 0,1 };
+        }
+        return { 0,0 };
+        };
+
+    for (size_t idx = 0; idx < forward.size(); ++idx) {
+        REQUIRE(forward[idx] == pattern(static_cast<int>(idx)));
     }
+
+    QuadratureOutput_Initialize(&qo, 180.0, 0.0);
+
+    std::vector<std::pair<int, int>> backward;
+    for (int i = half_states; i >= 0; i--) {
+        double ang = (static_cast<double>(i) / positions_per_rev) * 360.0;
+        QuadratureOutput_Update(&qo, ang, 0.0);
+        backward.emplace_back(qo.axis1.channel_a, qo.axis1.channel_b);
+    }
+
     REQUIRE(backward.size() == forward.size());
-    for(size_t idx=0; idx<backward.size(); ++idx) {
-        REQUIRE(backward[idx] == forward[forward.size()-1-idx]);
+    for (size_t idx = 0; idx < backward.size(); ++idx) {
+        REQUIRE(backward[idx] == forward[forward.size() - 1 - idx]);
     }
 }
-*/
