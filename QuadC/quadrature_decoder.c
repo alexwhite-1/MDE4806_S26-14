@@ -6,11 +6,11 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-static const int VALID_TRANSITIONS[4][4] = {
-    {0, -1,  1, -1},
-    {1,  0, -1,  1},
-    {-1, 1,  0, -1},
-    {-1,-1,  1,  0}
+static const int VALID_TRANSITIONS[QUADRATURE_STATES][QUADRATURE_STATES] = {
+    { 0,  1, -1,  0}, // from state 0: can go to 1 (fwd) or 2 (rev)
+    {-1,  0,  0,  1}, // from state 1: can go to 3 (fwd) or 0 (rev)
+    { 1,  0,  0, -1}, // from state 2: can go to 0 (fwd) or 3 (rev)
+    { 0, -1,  1,  0}  // from state 3: can go to 2 (fwd) or 1 (rev)
 };
 
 static int EncodeState(int a, int b);
@@ -87,9 +87,7 @@ void QDecoderAxisState_Reset(QDecoderAxisState* axis) {
     axis->error_count = 0;
 }
 
-void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, int index) {
-    // if (axis < 0 || axis >= num_axes_) return;
-    
+void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, int index) {    
     axis->pulse_count++;
     
     // Check for index pulse (transition from 0 to 1)
@@ -104,6 +102,12 @@ void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, i
     if (a == axis->last_channel_a && b == axis->last_channel_b) {
         return;  // No change, skip
     }
+
+    // Check to make sure both channels are not changing at once
+    if (a != axis->last_channel_a && b != axis->last_channel_b) {
+        axis->error_count++; // only one bit can change at a time
+        return;
+    }
     
     int from_state = EncodeState(axis->last_channel_a, axis->last_channel_b);
     int to_state = EncodeState(a, b);
@@ -112,9 +116,10 @@ void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, i
     int direction = GetDirection(from_state, to_state);
     
     if (direction == 0) {
-        // Invalid transition detected
+        // Invalid transition detected  
         axis->error_count++;
         // Don't update position on invalid transition
+        return;
     } 
     else if (direction > 0) {
         // Forward direction
@@ -122,7 +127,12 @@ void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, i
     } 
     else {
         // Reverse direction
-        axis->absolute_count--;
+        if (axis->absolute_count > 0) {
+            axis->absolute_count--;
+        }
+        else {
+            axis->absolute_count = axis->cpr * 4LL - 1;
+        }
     }
     
     axis->last_channel_a = a;
@@ -131,7 +141,6 @@ void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, i
 }
 
 int QDecoderAxisState_GetPositionCount(QDecoderAxisState* axis) {
-    // if (axis < 0 || axis >= num_axes_) return 0;
     long long count = axis->absolute_count;
     long long positions_per_rev = 4LL * axis->cpr;
 

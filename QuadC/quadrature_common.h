@@ -11,6 +11,8 @@
 #define MAX_CPR 9000
 #define MIN_CPR 1
 
-#define ANGLE_TOLERANCE 0.001
+#define TOLERANCE 0.001
+#define ANGLE_TOLERANCE 0.5
+#define RADIAN_TOLERANCE 0.01
 
 #endif
