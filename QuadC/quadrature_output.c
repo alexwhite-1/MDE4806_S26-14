@@ -1,5 +1,8 @@
-// Author: Alex White, 2/2/2026 | Richard Harrison, 03/12/2026
+// quadrature_output.c
+// Authors: Alex White, Richard Harrison
+// Date: 2026-03-24
 // Version: 2
+//
 // This file contains the functionality of the quadrature encoded output for the S26-14 project.
 // Intended functionality: The quadrature output will serve as the method of relying the positional data from the sensors on the PCB
 // to the robot via two output pins. With positive rotation, channel A will lead channel B by 90 degrees and vice versa for negative
@@ -10,7 +13,7 @@
 // quadrature signal itself does not necessarily indicate what the absolute angle is, simply the change in angle from a previous
 // value. Therefore, it is very important that the calibration procedure functions properly and the inclinometer knows the angle it
 // is starting from. The quadrature functionality does not know or care how the angle is calculated, simply that it is provided with
-// an angle. Intended to be used in conjuction with the quadrature decoder function for proper testing and verification.
+// an angle. Intended to be used in conjunction with the quadrature decoder function for proper testing and verification.
 
 #include "quadrature_output.h"
 

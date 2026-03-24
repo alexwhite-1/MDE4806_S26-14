@@ -1,6 +1,13 @@
-// Author: Alex White, 2/2/2026 | Richard Harrison, 03/12/2026
+// quadrature_output.h
+// Authors: Alex White, Richard Harrison
+// Date: 2026-03-24
 // Version: 2
-// This file is the header file for the quadrature output functionality. See other file for description.
+//
+// This file is the header file for the quadrature output functionality.
+// It contains the public data structures, constants, and function prototypes
+// used to generate quadrature-encoded A/B/index output signals from angle data.
+// Intended for use with the quadrature output source file and for integration
+// with external modules such as the quadrature decoder and test code.
 
 #ifndef QUADRATURE_OUTPUT_H
 #define QUADRATURE_OUTPUT_H
