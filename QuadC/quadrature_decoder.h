@@ -1,3 +1,14 @@
+// quadrature_decoder.h
+// Authors: Alex White, Richard Harrison
+// Date: 2026-03-24
+// Version: 2
+//
+// This file is the header file for the quadrature decoder functionality.
+// It contains the public data structures, constants, and function prototypes
+// used to decode quadrature A/B/index signals into position and angle information.
+// Intended for use with the quadrature decoder source file and for integration
+// with external modules such as the quadrature output generator and test code.
+
 #ifndef QUADRATURE_DECODER_H
 #define QUADRATURE_DECODER_H
 
