@@ -71,6 +71,7 @@ TEST_CASE("Initialize at index sets absolute count to zero", "[index-init]") {
     QuadratureDecoder qd = QuadratureDecoder_Construct(4096, 1);
     QDecoderAxisState_InitializeAtIndex(&qd.axes[0]);
 
+    REQUIRE(qd.axes[0].count == 0);
     REQUIRE(qd.axes[0].absolute_count == 0);
     REQUIRE(QDecoderAxisState_GetRevolutionCount(&qd.axes[0]) == 0);
 }
@@ -129,21 +130,22 @@ TEST_CASE("Process single pulse forward", "[pulse]") {
     QuadratureDecoder qd = QuadratureDecoder_Construct(4, 1);
     QDecoderAxisState_InitializeAtIndex(&qd.axes[0]);
 
-    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 0, 0);
+    QuadratureDecoder_ProcessPulse(&qd, 0, 0, 1, 0);
 
     REQUIRE(QDecoderAxisState_GetPositionCount(&qd.axes[0]) == 1);
-    REQUIRE(qd.axes[0].last_channel_a == 1);
-    REQUIRE(qd.axes[0].last_channel_b == 0);
+    REQUIRE(qd.axes[0].last_channel_a == 0);
+    REQUIRE(qd.axes[0].last_channel_b == 1);
 }
 
 TEST_CASE("Process single pulse backward", "[pulse]") {
     QuadratureDecoder qd = QuadratureDecoder_Construct(4, 1);
     QDecoderAxisState_InitializeAtIndex(&qd.axes[0]);
 
-    QuadratureDecoder_ProcessPulse(&qd, 0, 0, 1, 0);
+    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 0, 0);
 
     REQUIRE(QDecoderAxisState_GetPositionCount(&qd.axes[0]) == 4 * 4 - 1);
-    REQUIRE(qd.axes[0].absolute_count == 15);
+    REQUIRE(qd.axes[0].count == 15);
+    REQUIRE(qd.axes[0].absolute_count == -1);
 }
 
 TEST_CASE("Process repeated same state does nothing", "[pulse]") {
@@ -161,25 +163,26 @@ TEST_CASE("Process full forward quadrature sequence", "[pulse]") {
     QuadratureDecoder qd = QuadratureDecoder_Construct(4, 1);
     QDecoderAxisState_InitializeAtIndex(&qd.axes[0]);
 
-    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 0, 0);
-    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 1, 0);
-    QuadratureDecoder_ProcessPulse(&qd, 0, 0, 1, 0);
-    QuadratureDecoder_ProcessPulse(&qd, 0, 0, 0, 0);
+    QuadratureDecoder_ProcessPulse(&qd, 0, 0, 1, 0); // from 0 to 1, forward | 1
+    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 1, 0); // from 1 to 3, forward | 2
+    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 0, 0); // from 3 to 2, forward | 3
+    QuadratureDecoder_ProcessPulse(&qd, 0, 0, 0, 0); // from 2 to 0, forward | 4
 
-    REQUIRE(qd.axes[0].absolute_count == 16);
-    REQUIRE(QDecoderAxisState_GetPositionCount(&qd.axes[0]) == 0);
+    REQUIRE(qd.axes[0].count == 4);
+    REQUIRE(qd.axes[0].absolute_count == 4);
 }
 
 TEST_CASE("Process full reverse quadrature sequence", "[pulse]") {
     QuadratureDecoder qd = QuadratureDecoder_Construct(4, 1);
     QDecoderAxisState_InitializeAtIndex(&qd.axes[0]);
 
-    QuadratureDecoder_ProcessPulse(&qd, 0, 0, 1, 0);
-    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 1, 0);
-    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 0, 0);
-    QuadratureDecoder_ProcessPulse(&qd, 0, 0, 0, 0);
+    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 0, 0); // from 0 to 2, reverse | 15
+    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 1, 0); // from 2 to 3, reverse | 14
+    QuadratureDecoder_ProcessPulse(&qd, 0, 0, 1, 0); // from 3 to 1, reverse | 13
+    QuadratureDecoder_ProcessPulse(&qd, 0, 0, 0, 0); // from 1 to 0, reverse | 12
 
-    REQUIRE(qd.axes[0].absolute_count == 16);
+    REQUIRE(qd.axes[0].count == 12);
+    REQUIRE(qd.axes[0].absolute_count == -4);
 }
 
 // ============================================================================
@@ -230,17 +233,15 @@ TEST_CASE("Position count wraps at full revolution", "[position]") {
     long long positions_per_rev = 4LL * qd.axes[0].cpr;
 
     for (long long i = 0; i < positions_per_rev; ++i) {
-        qd.axes[0].last_channel_a = 0;
-        qd.axes[0].last_channel_b = 0;
         int step = (int)((i + 1) % 4);
-        int a = (step == 1 || step == 2) ? 1 : 0;
-        int b = (step == 2 || step == 3) ? 1 : 0;
+        int a = (step >= 2 && step <= 3) ? 1 : 0;
+        int b = (step >= 1 && step <= 2) ? 1 : 0;
         QuadratureDecoder_ProcessPulse(&qd, 0, a, b, 0);
     }
 
+    REQUIRE(qd.axes[0].absolute_count == positions_per_rev);
     REQUIRE(QDecoderAxisState_GetPositionCount(&qd.axes[0]) == 0);
-    //REQUIRE(qd.axes[0].absolute_count == positions_per_rev);
-    //REQUIRE(QDecoderAxisState_GetRevolutionCount(&qd.axes[0]) == 1);
+    REQUIRE(QDecoderAxisState_GetRevolutionCount(&qd.axes[0]) == 1);
 }
 
 TEST_CASE("Angle at position 0", "[angle]") {
@@ -256,22 +257,15 @@ TEST_CASE("Angle at quarter revolution", "[angle]") {
 
     long long quarter_positions = qd.axes[0].cpr;
 
-    //for (long long i = 0; i < quarter_positions; ++i) {
-    //    int a = (i >= 1 && i <= 2) ? 1 : 0;
-    //    int b = (i >= 2 && i <= 3) ? 1 : 0;
-    //}
-    QuadratureDecoder_ProcessPulse(&qd, 0, 0, 1, 0);
+    for (long long i = 0; i < quarter_positions; ++i) {
+        int step = (int)((i + 1) % 4);
+        int a = (step >= 2 && step <= 3) ? 1 : 0;
+        int b = (step >= 1 && step <= 2) ? 1 : 0;
+        QuadratureDecoder_ProcessPulse(&qd, 0, a, b, 0);
+    }
+
     double angle = QDecoderAxisState_GetAngleDeg(&qd.axes[0]);
-    REQUIRE(std::abs(angle - 22.5) < ANGLE_TOLERANCE);
-
-    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 1, 0);
-    angle = QDecoderAxisState_GetAngleDeg(&qd.axes[0]);
-    REQUIRE(std::abs(angle - 45.0) < ANGLE_TOLERANCE);
-
-    QuadratureDecoder_ProcessPulse(&qd, 0, 1, 0, 0);
-
-    angle = QDecoderAxisState_GetAngleDeg(&qd.axes[0]);
-    REQUIRE(std::abs(angle - 67.5) < ANGLE_TOLERANCE);
+    REQUIRE(std::abs(angle - 90.0) < ANGLE_TOLERANCE);
 }
 
 TEST_CASE("Angle at half revolution", "[angle]") {
@@ -281,12 +275,12 @@ TEST_CASE("Angle at half revolution", "[angle]") {
     long long half_positions = 2LL * qd.axes[0].cpr;
 
     for (long long i = 0; i < half_positions; ++i) {
-        int step = (int)(i % 4);
-        int a = (step >= 1 && step <= 2) ? 1 : 0;
-        int b = (step >= 2 && step <= 3) ? 1 : 0;
+        int step = (int)((i + 1) % 4);
+        int a = (step >= 2 && step <= 3) ? 1 : 0;
+        int b = (step >= 1 && step <= 2) ? 1 : 0;
         QuadratureDecoder_ProcessPulse(&qd, 0, a, b, 0);
     }
-
+     
     double angle = QDecoderAxisState_GetAngleDeg(&qd.axes[0]);
     REQUIRE(std::abs(angle - 180.0) < ANGLE_TOLERANCE);
 }
@@ -298,9 +292,9 @@ TEST_CASE("Angle at three-quarter revolution", "[angle]") {
     long long three_quarter_positions = 3LL * qd.axes[0].cpr;
 
     for (long long i = 0; i < three_quarter_positions; ++i) {
-        int step = (int)(i % 4);
-        int a = (step >= 1 && step <= 2) ? 1 : 0;
-        int b = (step >= 2 && step <= 3) ? 1 : 0;
+        int step = (int)((i + 1) % 4);
+        int a = (step >= 2 && step <= 3) ? 1 : 0;
+        int b = (step >= 1 && step <= 2) ? 1 : 0;
         QuadratureDecoder_ProcessPulse(&qd, 0, a, b, 0);
     }
 
@@ -315,9 +309,9 @@ TEST_CASE("Angle wraps at 360 degrees", "[angle]") {
     long long positions_per_rev = 4LL * qd.axes[0].cpr;
 
     for (long long i = 0; i < positions_per_rev; ++i) {
-        int step = (int)(i % 4);
-        int a = (step >= 1 && step <= 2) ? 1 : 0;
-        int b = (step >= 2 && step <= 3) ? 1 : 0;
+        int step = (int)((i + 1) % 4);
+        int a = (step >= 2 && step <= 3) ? 1 : 0;
+        int b = (step >= 1 && step <= 2) ? 1 : 0;
         QuadratureDecoder_ProcessPulse(&qd, 0, a, b, 0);
     }
 
@@ -332,9 +326,9 @@ TEST_CASE("Angle in radians", "[angle]") {
     long long half_positions = 2LL * qd.axes[0].cpr;
 
     for (long long i = 0; i < half_positions; ++i) {
-        int step = (int)(i % 4);
-        int a = (step >= 1 && step <= 2) ? 1 : 0;
-        int b = (step >= 2 && step <= 3) ? 1 : 0;
+        int step = (int)((i + 1) % 4);
+        int a = (step >= 2 && step <= 3) ? 1 : 0;
+        int b = (step >= 1 && step <= 2) ? 1 : 0;
         QuadratureDecoder_ProcessPulse(&qd, 0, a, b, 0);
     }
 

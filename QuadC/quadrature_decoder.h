@@ -11,7 +11,9 @@ extern "C" {
 #endif
 
 typedef struct {
-    int cpr;
+	int cpr;                                // counts per revolution       
+    int ppr;                                // positions per revolution
+    long long count;                        // position count
     long long absolute_count;               // position count (can be negative)
 
     int last_channel_a;                     // last A signal (0 or 1)
@@ -21,8 +23,8 @@ typedef struct {
     bool synchronized;                      // synchronized to index
 
     unsigned long long pulse_count;         // total pulses processed
-    unsigned long long index_pulse_count;   // index pulses seen
     unsigned long long error_count;         // invalid transitions
+    unsigned long long index_pulse_count;   // index pulses seen
 } QDecoderAxisState;
 
 typedef struct {
@@ -43,13 +45,13 @@ void QDecoderAxisState_Reset(QDecoderAxisState* axis);
 
 void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, int index);
 
-int QDecoderAxisState_GetPositionCount(QDecoderAxisState* axis);
+long long QDecoderAxisState_GetRevolutionCount(QDecoderAxisState* axis);
+
+long long QDecoderAxisState_GetPositionCount(QDecoderAxisState* axis);
 
 double QDecoderAxisState_GetAngleDeg(QDecoderAxisState* axis);
 
 double QDecoderAxisState_GetAngleRad(QDecoderAxisState* axis);
-
-int QDecoderAxisState_GetRevolutionCount(QDecoderAxisState* axis);
 
 bool QDecoderAxisState_HasErrors(QDecoderAxisState* axis);
 

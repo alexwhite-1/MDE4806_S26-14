@@ -16,6 +16,7 @@ static const int VALID_TRANSITIONS[QUADRATURE_STATES][QUADRATURE_STATES] = {
 static int EncodeState(int a, int b);
 static int ClampCPR(int cpr);
 static int GetDirection(int from, int to);
+
 //static bool IsWithinAxis(int axis);
 
 //============================================================================================
@@ -47,7 +48,9 @@ QDecoderAxisState QDecoderAxisState_Construct(int cpr) {
     QDecoderAxisState axis;
     
     axis.cpr = ClampCPR(cpr);
-    axis.absolute_count = 0;  
+	axis.ppr = axis.cpr * 4LL;
+    axis.count = 0;
+    axis.absolute_count = 0;
 
     axis.last_channel_a = 0;                
     axis.last_channel_b = 0;                 
@@ -73,7 +76,7 @@ void QDecoderAxisState_InitializeAtIndex(QDecoderAxisState* axis) {
 }
 
 void QDecoderAxisState_Reset(QDecoderAxisState* axis) {
-    // if (axis < 0 || axis >= num_axes_) return;
+    axis->count = 0;
     axis->absolute_count = 0;
     axis->synchronized = false;
 
@@ -82,9 +85,8 @@ void QDecoderAxisState_Reset(QDecoderAxisState* axis) {
     axis->last_index = 0;
 
     axis->pulse_count = 0;
-    axis->index_pulse_count = 0;
-
     axis->error_count = 0;
+    axis->index_pulse_count = 0;
 }
 
 void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, int index) {    
@@ -115,24 +117,20 @@ void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, i
     // Validate transition
     int direction = GetDirection(from_state, to_state);
     
-    if (direction == 0) {
-        // Invalid transition detected  
+    if (direction == 0) { // Invalid transition detected
         axis->error_count++;
         // Don't update position on invalid transition
         return;
     } 
-    else if (direction > 0) {
-        // Forward direction
+    else if (direction > 0) { // Forward direction
+        // i = (i + 1) % n; ~ Circular Increment
+        axis->count = (axis->count + 1) % axis->ppr;
         axis->absolute_count++;
     } 
-    else {
-        // Reverse direction
-        if (axis->absolute_count > 0) {
-            axis->absolute_count--;
-        }
-        else {
-            axis->absolute_count = axis->cpr * 4LL - 1;
-        }
+    else { // Reverse direction
+		// i = (i - 1 + n) % n; ~ Circular Decrement
+        axis->count = (axis->count - 1 + axis->ppr) % axis->ppr;
+        axis->absolute_count--;
     }
     
     axis->last_channel_a = a;
@@ -140,46 +138,27 @@ void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, i
     axis->last_index = index;
 }
 
-int QDecoderAxisState_GetPositionCount(QDecoderAxisState* axis) {
-    long long count = axis->absolute_count;
-    long long positions_per_rev = 4LL * axis->cpr;
+long long QDecoderAxisState_GetPositionCount(QDecoderAxisState* axis) {
+    return axis->count;
+}
 
-    return (int)(count % positions_per_rev);
+long long QDecoderAxisState_GetRevolutionCount(QDecoderAxisState* axis) {
+    return (long long)(axis->absolute_count / axis->ppr);
 }
 
 double QDecoderAxisState_GetAngleDeg(QDecoderAxisState* axis) {
-    // if (axis < 0 || axis >= num_axes_) return 0.0;
-    long long positions_per_rev = 4LL * axis->cpr;
-    long long count = axis->absolute_count % positions_per_rev;
-
-    if (count < 0) count += positions_per_rev;
-
-    return ((double)(count) / positions_per_rev) * 360.0;
+    return ((double)(axis->count) / axis->ppr) * DEGREES_PER_REVOLUTION;
 }
 
 double QDecoderAxisState_GetAngleRad(QDecoderAxisState* axis) {
-    // if (axis < 0 || axis >= num_axes_) return 0.0;
-    long long positions_per_rev = 4LL * axis->cpr;
-    long long count = axis->absolute_count % positions_per_rev;
-
-    if (count < 0) count += positions_per_rev;
-
-    return ((double)(count) / positions_per_rev) * 2.0 * M_PI;
-}
-
-int QDecoderAxisState_GetRevolutionCount(QDecoderAxisState* axis) {
-    // if (axis < 0 || axis >= num_axes_) return 0;
-    long long positions_per_rev = 4LL * axis->cpr;
-    return (int)(axis->absolute_count / positions_per_rev);
+    return ((double)(axis->count) / axis->ppr) * 2.0 * M_PI;
 }
 
 bool QDecoderAxisState_HasErrors(QDecoderAxisState* axis) {
-    // if (axis < 0 || axis >= num_axes_) return false;
-    return axis->error_count > 0;
+    return (axis->error_count > 0);
 }
 
 void QDecoderAxisState_ClearErrors(QDecoderAxisState* axis) {
-    // if (axis < 0 || axis >= num_axes_) return;
     axis->error_count = 0;
 }
 
