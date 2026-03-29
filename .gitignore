@@ -1,5 +1,7 @@
-__pycache__out/ 
+__pycache__out/
+__pycache__/
+
 QuadC/out/ 
 QuadC/.vs/
+
 Quadrature/build/_deps/catch2-src/
-__pycache__/
