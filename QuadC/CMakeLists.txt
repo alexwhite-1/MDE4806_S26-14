@@ -43,10 +43,28 @@ add_executable(test_quadrature_decoder
 target_link_libraries(test_quadrature_decoder PRIVATE quadrature_lib Catch2::Catch2WithMain)
 target_include_directories(test_quadrature_decoder PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
+
+# Test executable for QuadratureIntegration
+add_executable(test_quadrature_integration 
+    test_quadrature_integration.cpp
+)
+target_link_libraries(test_quadrature_integration PRIVATE quadrature_lib Catch2::Catch2WithMain)
+target_include_directories(test_quadrature_integration PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+
+# Test executable for QuadraturePulses
+add_executable(test_quadrature_pulses 
+    test_quadrature_pulses.cpp
+)
+target_link_libraries(test_quadrature_pulses PRIVATE quadrature_lib Catch2::Catch2WithMain)
+target_include_directories(test_quadrature_pulses PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+
 # Enable testing
 enable_testing()
 
 # Register tests with CTest
 add_test(NAME QuadratureOutputTests COMMAND test_quadrature_output)
 add_test(NAME QuadratureDecoderTests COMMAND test_quadrature_decoder)
-
+add_test(NAME QuadratureIntegrationTests COMMAND test_quadrature_integration)
+add_test(NAME QuadraturePulseTests COMMAND test_quadrature_pulses)

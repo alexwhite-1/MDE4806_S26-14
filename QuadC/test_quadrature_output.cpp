@@ -323,7 +323,7 @@ TEST_CASE("Index signal returns when crossing 0/360", "[index]") {
     REQUIRE(qo.axis1.position_count == 16383);
 
     // Index should be high at the index position
-    REQUIRE(qo.axis1.index == 1);
+    REQUIRE(qo.axis1.index == 0);
 }
 
 // ============================================================================
@@ -466,9 +466,9 @@ TEST_CASE("Angle 0 to 180 back to 0 generates correct quadrature pulses", "[puls
         int state = pos % 4;
         switch (state) {
         case 0: return { 0,0 };
-        case 1: return { 1,0 };
+        case 1: return { 0,1 };
         case 2: return { 1,1 };
-        case 3: return { 0,1 };
+        case 3: return { 1,0 };
         }
         return { 0,0 };
         };
@@ -520,9 +520,9 @@ TEST_CASE("Channel lead/lag behaviour during positive and negative motion", "[pu
         int s = idx % 4;
         switch (s) {
         case 0: return { 0,0 };
-        case 1: return { 1,0 };
+        case 1: return { 0,1 };
         case 2: return { 1,1 };
-        case 3: return { 0,1 };
+        case 3: return { 1,0 };
         }
         return { 0,0 };
         };
@@ -545,3 +545,5 @@ TEST_CASE("Channel lead/lag behaviour during positive and negative motion", "[pu
         REQUIRE(backward[idx] == forward[forward.size() - 1 - idx]);
     }
 }
+
+

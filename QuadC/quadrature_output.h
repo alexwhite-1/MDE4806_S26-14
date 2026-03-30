@@ -102,6 +102,10 @@ void QuadratureOutput_GetFormattedOutputString(const QuadratureOutput* output, c
 // Set number of axes
 void QuadratureOutput_SetNumAxes(QuadratureOutput* output, int num_axes);
 
+//step once in the direction of dir (1 for forward, -1 for backward)
+static void QOutputAxisState_StepOne(QOutputAxisState* axis, int dir);
+
+
 #ifdef __cplusplus
 }
 #endif

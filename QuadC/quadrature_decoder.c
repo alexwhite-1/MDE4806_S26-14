@@ -198,6 +198,7 @@ void QuadratureDecoder_SetCPR(QuadratureDecoder* decoder, int cpr) {
     cpr = ClampCPR(cpr);
     for (int i = 0; i < decoder->num_axes; i++) {
         decoder->axes[i].cpr = cpr;
+		decoder->axes[i].ppr = cpr * 4LL;
     }
 }
 
