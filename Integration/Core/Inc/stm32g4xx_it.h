@@ -60,8 +60,10 @@ void DMA1_Channel2_IRQHandler(void);
 void DMA1_Channel3_IRQHandler(void);
 void DMA1_Channel4_IRQHandler(void);
 void TIM6_DAC_IRQHandler(void);
+void TIM7_IRQHandler(void);
 /* USER CODE BEGIN EFP */
-
+bool GetKalmanReady(void);
+bool GetQuadReady(void);
 /* USER CODE END EFP */
 
 #ifdef __cplusplus

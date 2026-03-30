@@ -22,6 +22,7 @@
 #include "spi.h"
 #include "tim.h"
 #include "gpio.h"
+#include "kalman.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -35,7 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define CLOCK_SPEED 138000000.0f
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -44,15 +45,16 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-
 /* USER CODE BEGIN PV */
+TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim7;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+float ComputeKalmanDT(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -95,7 +97,8 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_TIM_Base_Start_IT(&htim6);
+  HAL_TIM_Base_Start_IT(&htim7);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,7 +106,20 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	if (GetQuadReady())
+	{
+		// quadrature output update
+	}
+	if (GetKalmanReady())
+	{
+	    float dt = ComputeKalmanDT();
+	    if (dt > 0.0f)
+	    {
+	    	// SPI read gyro
+	    	// ADC read accel
+	        // kalman_run(, dt, );
+	    }
+	}
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -156,7 +172,24 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+float ComputeKalmanDT(void)
+{
+    static uint32_t last_tick = 0;
+    static bool initialized = false;
 
+    uint32_t now = DWT->CYCCNT;
+
+    if (!initialized)
+    {
+        last_tick = now;
+        initialized = true;
+        return 0.0f;
+    }
+
+    float dt = (float)(now - last_tick) / CLOCK_SPEED;
+    last_tick = now;
+    return dt;
+}
 /* USER CODE END 4 */
 
 /**
