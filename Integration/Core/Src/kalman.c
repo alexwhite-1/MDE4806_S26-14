@@ -8,7 +8,17 @@
 #define Y_AXIS 3
 #define Z_AXIS 4
 
-void kalman_run(StateVector* state_vector, ErrorCovarianceMatrix* error_covariance_matrix, float dt, const GyroSample* gyro, const AccelSample* accel, const ProcessNoiseMatrix* process_noise_matrix, const MeasurementNoiseMatrix* measurement_noise_matrix) {
+// Static functions
+void FillIdentity(float* matrix, int size) {
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            matrix[i * size + j] = (i == j) ? 1.0f : 0.0f;
+        }
+    }
+}
+
+//
+void kalman_run( float dt, StateVector* state_vector, ErrorCovarianceMatrix* error_covariance_matrix, const GyroSample* gyro, const AccelSample* accel, const ProcessNoiseMatrix* process_noise_matrix, const MeasurementNoiseMatrix* measurement_noise_matrix) {
 	// GYRO PORTION
 	CorrectedGyro correct_gyro = ComputeCorrectedValues(state_vector, gyro);
 	TrigCache trig = ComputeTrigValues(state_vector->vector[ROLL], state_vector->vector[PITCH]);
@@ -33,6 +43,7 @@ void kalman_run(StateVector* state_vector, ErrorCovarianceMatrix* error_covarian
 
 //=== Constructors ===//
 
+/*
 StateVector StateVector_Construct(float roll, float pitch, float gx, float gy, float gz) {
 	StateVector state;
 
@@ -43,6 +54,35 @@ StateVector StateVector_Construct(float roll, float pitch, float gx, float gy, f
 	state.vector[Z_AXIS] = gz;
 
 	return state;
+}
+*/
+
+StateVector StateVector_Construct() {
+	StateVector state;
+
+	for (int i = 0; i < MATRIX_SIZE; i++) {
+		state.vector[i] = 0;
+	}
+
+	return state;
+}
+
+ProcessNoiseMatrix ProcessNoiseMatrix_Contruct() {
+	ProcessNoiseMatrix noise;
+    FillIdentity(&noise.matrix[0][0], MATRIX_SIZE); // 5x5
+	return noise;
+}
+
+ErrorCovarianceMatrix ErrorCovarianceMatrix_Construct() {
+    ErrorCovarianceMatrix covariance;
+    FillIdentity(&covariance.matrix[0][0], MATRIX_SIZE); // 5x5
+    return covariance;
+}
+
+MeasurementNoiseMatrix MeasurementNoiseMatrix_Contruct() {
+    MeasurementNoiseMatrix noise;
+    FillIdentity(&noise.matrix[0][0], VECTOR_SIZE); // 2x2
+    return noise;
 }
 
 MeasuredVector MeasuredVector_Construct(const AccelSample* accl) {
@@ -69,11 +109,7 @@ PredictionMatrix PredictionMatrix_Construct(const CorrectedGyro* gyro, const Tri
 	PredictionMatrix predict;
 
 	// Create identity matrix
-	for (int i = 0; i < MATRIX_SIZE; i++) {
-		for (int j = 0; j < MATRIX_SIZE; j++) {
-			predict.matrix[i][j] = (i == j) ? 1 : 0;
-		}
-	}
+    FillIdentity(&predict.matrix[0][0], MATRIX_SIZE); // 5x5
 
 	// Set prediction matrix values
 	predict.matrix[0][0] += dt*trig->tan_p*(gyro->Gy*trig->cos_r - gyro->Gz*trig->sin_r);
@@ -87,36 +123,6 @@ PredictionMatrix PredictionMatrix_Construct(const CorrectedGyro* gyro, const Tri
 	predict.matrix[1][4] = trig->sin_r*dt;
 
 	return predict;
-}
-
-ProcessNoiseMatrix ProcessNoiseMatrix_Contruct() {
-	ProcessNoiseMatrix noise;
-	// 5x5
-
-	// Temp Identity Matrix
-	int i = 0; int j = 0;
-	for (; i < MATRIX_SIZE; i++) {
-		for (; j < MATRIX_SIZE; j++) {
-			noise.matrix[i][j] = (i == j) ? 1 : 0;
-		}
-	}
-
-	return noise;
-}
-
-MeasurementNoiseMatrix MeasurementNoiseMatrix_Contruct() {
-	MeasurementNoiseMatrix noise;
-	// 2x2
-
-	// Temp Identity Matrix
-	int i = 0; int j = 0;
-	for (; i < VECTOR_SIZE; i++) {
-		for (; j < VECTOR_SIZE; j++) {
-			noise.matrix[i][j] = (i == j) ? 1 : 0;
-		}
-	}
-
-	return noise;
 }
 
 KalmanGainMatrix KalmanGainMatrix_Construct(const ErrorCovarianceMatrix* error, const MeasurementNoiseMatrix* measurednoise) {

@@ -59,9 +59,9 @@ typedef struct {
 } TrigCache;
 
 void kalman_run(
+		float dt,
 		StateVector* state_vector,
 		ErrorCovarianceMatrix* error_covariance_matrix,
-		float dt,
 		const GyroSample* gyro,
 		const AccelSample* accel,
 		const ProcessNoiseMatrix* process_noise_matrix,
@@ -70,17 +70,21 @@ void kalman_run(
 
 //=== Constructors ===//
 
-StateVector StateVector_Construct(float roll, float pitch, float gx, float gy, float gz);
+//StateVector StateVector_Construct(float roll, float pitch, float gx, float gy, float gz);
+
+StateVector StateVector_Construct();
+
+ProcessNoiseMatrix ProcessNoiseMatrix_Contruct();
+
+ErrorCovarianceMatrix ErrorCovarianceMatrix_Construct();
+
+MeasurementNoiseMatrix MeasurementNoiseMatrix_Contruct();
 
 MeasuredVector MeasuredVector_Construct(const AccelSample* accl);
 
 ResidualErrorVector ResidualErrorVector_Construct(const StateVector* state, const MeasuredVector* measured);
 
 PredictionMatrix PredictionMatrix_Construct(const CorrectedGyro* gyro, const TrigCache* trig, const float dt);
-
-ProcessNoiseMatrix ProcessNoiseMatrix_Contruct();
-
-MeasurementNoiseMatrix MeasurementNoiseMatrix_Contruct();
 
 KalmanGainMatrix KalmanGainMatrix_Construct(const ErrorCovarianceMatrix* error, const MeasurementNoiseMatrix* measurednoise);
 
