@@ -78,6 +78,10 @@ ResidualErrorVector ResidualErrorVector_Construct(const StateVector* state, cons
 
 PredictionMatrix PredictionMatrix_Construct(const CorrectedGyro* gyro, const TrigCache* trig, const float dt);
 
+ProcessNoiseMatrix ProcessNoiseMatrix_Contruct();
+
+MeasurementNoiseMatrix MeasurementNoiseMatrix_Contruct();
+
 KalmanGainMatrix KalmanGainMatrix_Construct(const ErrorCovarianceMatrix* error, const MeasurementNoiseMatrix* measurednoise);
 
 //void Kalman_Run(StateVector* state, MeasuredVector* measured, float dt);

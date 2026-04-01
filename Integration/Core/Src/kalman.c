@@ -89,6 +89,36 @@ PredictionMatrix PredictionMatrix_Construct(const CorrectedGyro* gyro, const Tri
 	return predict;
 }
 
+ProcessNoiseMatrix ProcessNoiseMatrix_Contruct() {
+	ProcessNoiseMatrix noise;
+	// 5x5
+
+	// Temp Identity Matrix
+	int i = 0; int j = 0;
+	for (; i < MATRIX_SIZE; i++) {
+		for (; j < MATRIX_SIZE; j++) {
+			noise.matrix[i][j] = (i == j) ? 1 : 0;
+		}
+	}
+
+	return noise;
+}
+
+MeasurementNoiseMatrix MeasurementNoiseMatrix_Contruct() {
+	MeasurementNoiseMatrix noise;
+	// 2x2
+
+	// Temp Identity Matrix
+	int i = 0; int j = 0;
+	for (; i < VECTOR_SIZE; i++) {
+		for (; j < VECTOR_SIZE; j++) {
+			noise.matrix[i][j] = (i == j) ? 1 : 0;
+		}
+	}
+
+	return noise;
+}
+
 KalmanGainMatrix KalmanGainMatrix_Construct(const ErrorCovarianceMatrix* error, const MeasurementNoiseMatrix* measurednoise) {
 	// NOTE: Function works when H = {{1,0,0,0,0},{0,1,0,0,0}}
 
