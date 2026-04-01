@@ -102,8 +102,8 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim7);
 
-  StateVector state_vector;
-  ErrorCovarianceMatrix error_covariance_matrix;
+  StateVector state_vector = StateVector_Construct();
+  ErrorCovarianceMatrix error_covariance_matrix = ErrorCovarianceMatrix_Construct();
   const ProcessNoiseMatrix process_noise_matrix = ProcessNoiseMatrix_Contruct();
   const MeasurementNoiseMatrix measurement_noise_matrix = MeasurementNoiseMatrix_Contruct();
 
@@ -130,7 +130,15 @@ int main(void)
 	    	AccelSample accel_sample;
 
 	    	// Run Kalman filter
-	    	kalman_run(, dt, &gyro_sample, &accel_sample, &process_noise_matrix, &measurement_noise_matrix);
+	    	kalman_run(
+					dt,
+	    			&state_vector,
+					&error_covariance_matrix,
+					&gyro_sample,
+					&accel_sample,
+					&process_noise_matrix,
+					&measurement_noise_matrix
+			);
 	    }
 	}
     /* USER CODE BEGIN 3 */
