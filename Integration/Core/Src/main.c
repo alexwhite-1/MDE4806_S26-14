@@ -55,6 +55,8 @@ TIM_HandleTypeDef htim7;
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 float ComputeKalmanDT(void);
+
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -99,6 +101,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim7);
+
+  StateVector state_vector;
+  ErrorCovarianceMatrix error_covariance_matrix;
+  const ProcessNoiseMatrix process_noise_matrix = ProcessNoiseMatrix_Contruct();
+  const MeasurementNoiseMatrix measurement_noise_matrix = MeasurementNoiseMatrix_Contruct();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -116,8 +124,13 @@ int main(void)
 	    if (dt > 0.0f)
 	    {
 	    	// SPI read gyro
-	    	// ADC read accel
-	        // kalman_run(, dt, );
+	    	GyroSample gyro_sample;
+
+	    	// MCU ADC read accel
+	    	AccelSample accel_sample;
+
+	    	// Run Kalman filter
+	    	kalman_run(, dt, &gyro_sample, &accel_sample, &process_noise_matrix, &measurement_noise_matrix);
 	    }
 	}
     /* USER CODE BEGIN 3 */
