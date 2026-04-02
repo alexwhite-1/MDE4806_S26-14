@@ -22,6 +22,7 @@
 #include "spi.h"
 #include "tim.h"
 #include "gpio.h"
+#include "kalman.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
