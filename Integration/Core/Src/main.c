@@ -23,7 +23,7 @@
 #include "tim.h"
 #include "gpio.h"
 #include "kalman.h"
-
+#include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -47,8 +47,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-TIM_HandleTypeDef htim6;
-TIM_HandleTypeDef htim7;
 
 /* USER CODE END PV */
 

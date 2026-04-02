@@ -4,4 +4,6 @@ __pycache__/
 QuadC/out/ 
 QuadC/.vs/
 
+Integration/Debug
+
 Quadrature/build/_deps/catch2-src/
