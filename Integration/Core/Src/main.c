@@ -22,7 +22,6 @@
 #include "spi.h"
 #include "tim.h"
 #include "gpio.h"
-#include "kalman.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -45,6 +44,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+
 /* USER CODE BEGIN PV */
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
