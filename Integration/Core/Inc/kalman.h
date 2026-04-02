@@ -55,7 +55,7 @@ typedef struct {
 	float sin_r;
 	float cos_r;
 	float tan_p;
-	float sec2_f;
+	float sec2_p;
 } TrigCache;
 
 void kalman_run(

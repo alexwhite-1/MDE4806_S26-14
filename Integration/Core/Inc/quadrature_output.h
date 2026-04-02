@@ -12,11 +12,13 @@
 #ifndef QUADRATURE_OUTPUT_H
 #define QUADRATURE_OUTPUT_H
 
-#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <stdbool.h>
+#include <stddef.h>
 
 // Structure to hold formatted quadrature output: Axis 1 A, Axis 1 B, Axis 2 A, Axis 2 B, Index
 typedef struct {

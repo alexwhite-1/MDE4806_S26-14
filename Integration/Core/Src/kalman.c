@@ -23,20 +23,20 @@ void kalman_run( float dt, StateVector* state_vector, ErrorCovarianceMatrix* err
 	CorrectedGyro correct_gyro = ComputeCorrectedValues(state_vector, gyro);
 	TrigCache trig = ComputeTrigValues(state_vector->vector[ROLL], state_vector->vector[PITCH]);
 
-	PredictionMatrix prediction_matrix = PredictionMatrix_Construct(correct_gyro, trig, dt);
+	PredictionMatrix prediction_matrix = PredictionMatrix_Construct(&correct_gyro, &trig, dt);
 
-	ComputeErrorCovarianceMatrix(error_covariance_matrix, prediction_matrix, process_noise_matrix);
+	ComputeErrorCovarianceMatrix(error_covariance_matrix, &prediction_matrix, process_noise_matrix);
 
 	// ACC PORTION
 	MeasuredVector measured_vector = MeasuredVector_Construct(accel);
-	ResidualErrorVector residual_error_vector =  ResidualErrorVector_Construct(state_vector, measured_vector);
+	ResidualErrorVector residual_error_vector =  ResidualErrorVector_Construct(state_vector, &measured_vector);
 
 	// KALMAN CALC
 	KalmanGainMatrix kalman_gain_matrix = KalmanGainMatrix_Construct(error_covariance_matrix, measurement_noise_matrix);
 
 	// UPDATE STATE AND ERROR MATRIX
-	UpdateStateVector(state_vector, kalman_gain_matrix, residual_error_vector, correct_gyro, trig, dt);
-	UpdateErrorCovarianceMatrix(error_covariance_matrix, kalman_gain_matrix);
+	UpdateStateVector(state_vector, &kalman_gain_matrix, &residual_error_vector, &correct_gyro, &trig, dt);
+	UpdateErrorCovarianceMatrix(error_covariance_matrix, &kalman_gain_matrix);
 
 	// DOUBLE OUTPUT
 }
