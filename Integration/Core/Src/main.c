@@ -106,6 +106,9 @@ int main(void)
   const ProcessNoiseMatrix process_noise_matrix = ProcessNoiseMatrix_Contruct();
   const MeasurementNoiseMatrix measurement_noise_matrix = MeasurementNoiseMatrix_Contruct();
 
+  QuadratureOutput quad_pkg = QuadratureOutput_Construct(4096, 1);
+  QuadratureOutput_Initialize(&quad_pkg, 0.0, 0.0);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -116,6 +119,7 @@ int main(void)
 	if (GetQuadReady())
 	{
 		// quadrature output update
+		  QuadratureOutput_Update(&quad_pkg, 0.0, 0.0);
 	}
 	if (GetKalmanReady())
 	{
