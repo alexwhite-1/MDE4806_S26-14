@@ -74,19 +74,12 @@ void QOutputAxisState_UpdateAxis(QOutputAxisState* axis, double angle_axis) {
     while (angle_diff > 180.0) angle_diff -= 360.0;
     while (angle_diff < -180.0) angle_diff += 360.0;
 
-    int position_change = QOutputAxisState_AngleToPositionChange(axis, angle_diff);
-    axis->position_count += position_change;
+    int steps = QOutputAxisState_AngleToPositionChange(axis, angle_diff);
+    int dir = (steps >= 0) ? 1 : -1;
+    int remaining = (steps >= 0) ? steps : -steps;
 
-    while (axis->position_count < 0) {
-        axis->position_count += axis->positions_per_rev;
-    }
-    axis->position_count = axis->position_count % axis->positions_per_rev;
-
-    QOutputAxisState_UpdateQuadratureStates(axis, position_change);
-
-    axis->index = (axis->position_count == 0 || axis->position_count == (axis->positions_per_rev - 1)) ? 1 : 0;
-
-    QOutputAxisState_ResetIndex(axis, angle_axis);
+    while (remaining--)
+        QOutputAxisState_StepOne(axis, dir);
 
     axis->previous_angle = angle_axis;
 }
@@ -112,16 +105,16 @@ void QOutputAxisState_GetQuadraturePattern(QOutputAxisState* state)  {
         state->channel_b = 0;
         break;
     case 1:
-        state->channel_a = 1;
-        state->channel_b = 0;
+        state->channel_a = 0;
+        state->channel_b = 1;
         break;
     case 2:
         state->channel_a = 1;
         state->channel_b = 1;
         break;
     case 3:
-        state->channel_a = 0;
-        state->channel_b = 1;
+        state->channel_a = 1;
+        state->channel_b = 0;
         break;
     default:
         state->channel_a = 0;
@@ -232,4 +225,21 @@ void QuadratureOutput_GetFormattedOutputString(const QuadratureOutput* output, c
 // Set number of axes
 void QuadratureOutput_SetNumAxes(QuadratureOutput* output, int num_axes) {
     output->num_axes = MAX(1, MIN(num_axes, 2));
+}
+
+// moves position_count by exactly one step, wraps it, refreshes A/B,
+// and asserts the index pulse when the encoder returns to position 0.
+void QOutputAxisState_StepOne(QOutputAxisState* axis, int dir) {
+    axis->position_count += dir;
+
+    if (axis->position_count < 0)
+        axis->position_count += axis->positions_per_rev;
+    else if (axis->position_count >= axis->positions_per_rev)
+        axis->position_count -= axis->positions_per_rev;
+
+    QOutputAxisState_GetQuadraturePattern(axis);
+
+    axis->index = (axis->position_count == 0 &&
+        axis->channel_a == 0 &&
+        axis->channel_b == 0) ? 1 : 0;
 }
