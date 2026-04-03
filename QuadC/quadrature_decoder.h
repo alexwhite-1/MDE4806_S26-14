@@ -56,17 +56,17 @@ void QDecoderAxisState_Reset(QDecoderAxisState* axis);
 
 void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, int index);
 
-long long QDecoderAxisState_GetRevolutionCount(QDecoderAxisState* axis);
-
-long long QDecoderAxisState_GetPositionCount(QDecoderAxisState* axis);
-
-double QDecoderAxisState_GetAngleDeg(QDecoderAxisState* axis);
-
-double QDecoderAxisState_GetAngleRad(QDecoderAxisState* axis);
-
 bool QDecoderAxisState_HasErrors(QDecoderAxisState* axis);
 
 void QDecoderAxisState_ClearErrors(QDecoderAxisState* axis);
+
+long long QDecoderAxisState_GetRevolutionCount(const QDecoderAxisState* axis);
+
+long long QDecoderAxisState_GetPositionCount(const QDecoderAxisState* axis);
+
+double QDecoderAxisState_GetAngleDeg(const QDecoderAxisState* axis);
+
+double QDecoderAxisState_GetAngleRad(const QDecoderAxisState* axis);
 
 //============================================================================================
 //                          QuadratureDecoder Implementation
@@ -93,4 +93,4 @@ void QuadratureDecoder_GetFormattedOutputDual(const QuadratureDecoder* decoder, 
 }
 #endif
 
-#endif 
+#endif

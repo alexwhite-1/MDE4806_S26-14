@@ -148,28 +148,28 @@ void QDecoderAxisState_ProcessAxisPulse(QDecoderAxisState* axis, int a, int b, i
     axis->last_index = index;
 }
 
-long long QDecoderAxisState_GetPositionCount(QDecoderAxisState* axis) {
-    return axis->count;
-}
-
-long long QDecoderAxisState_GetRevolutionCount(QDecoderAxisState* axis) {
-    return (long long)(axis->absolute_count / axis->ppr);
-}
-
-double QDecoderAxisState_GetAngleDeg(QDecoderAxisState* axis) {
-    return ((double)(axis->count) / axis->ppr) * DEGREES_PER_REVOLUTION;
-}
-
-double QDecoderAxisState_GetAngleRad(QDecoderAxisState* axis) {
-    return ((double)(axis->count) / axis->ppr) * 2.0 * M_PI;
-}
-
 bool QDecoderAxisState_HasErrors(QDecoderAxisState* axis) {
     return (axis->error_count > 0);
 }
 
 void QDecoderAxisState_ClearErrors(QDecoderAxisState* axis) {
     axis->error_count = 0;
+}
+
+long long QDecoderAxisState_GetPositionCount(const QDecoderAxisState* axis) {
+    return axis->count;
+}
+
+long long QDecoderAxisState_GetRevolutionCount(const QDecoderAxisState* axis) {
+    return (long long)(axis->absolute_count / axis->ppr);
+}
+
+double QDecoderAxisState_GetAngleDeg(const QDecoderAxisState* axis) {
+    return ((double)(axis->count) / axis->ppr) * DEGREES_PER_REVOLUTION;
+}
+
+double QDecoderAxisState_GetAngleRad(const QDecoderAxisState* axis) {
+    return ((double)(axis->count) / axis->ppr) * 2.0 * M_PI;
 }
 
 //============================================================================================
@@ -233,10 +233,11 @@ void QuadratureDecoder_GetFormattedOutput(const QuadratureDecoder* decoder, int 
         return;
     }
 
-    snprintf(buffer, buffer_size, "%.3f,%d,%d",
+    snprintf(buffer, buffer_size, "%.3f,%lld,%lld",
              QDecoderAxisState_GetAngleDeg(&decoder->axes[axis]),
              QDecoderAxisState_GetPositionCount(&decoder->axes[axis]),
-             QDecoderAxisState_GetRevolutionCount(&decoder->axes[axis]));
+             QDecoderAxisState_GetRevolutionCount(&decoder->axes[axis])
+	);
 }
 
 void QuadratureDecoder_GetFormattedOutputDual(const QuadratureDecoder* decoder, char* buffer, size_t buffer_size) {
@@ -248,13 +249,13 @@ void QuadratureDecoder_GetFormattedOutputDual(const QuadratureDecoder* decoder, 
     }
 
     if (decoder->num_axes == 1) {
-        snprintf(buffer, buffer_size, "%.3f,%d,%d",
+        snprintf(buffer, buffer_size, "%.3f,%lld,%lld",
                  QDecoderAxisState_GetAngleDeg(&decoder->axes[0]),
                  QDecoderAxisState_GetPositionCount(&decoder->axes[0]),
                  QDecoderAxisState_GetRevolutionCount(&decoder->axes[0]));
     }
     else {
-        snprintf(buffer, buffer_size, "%.3f,%d,%d,%.3f,%d,%d",
+        snprintf(buffer, buffer_size, "%.3f,%lld,%lld,%.3f,%lld,%lld",
                  QDecoderAxisState_GetAngleDeg(&decoder->axes[0]),
                  QDecoderAxisState_GetPositionCount(&decoder->axes[0]),
                  QDecoderAxisState_GetRevolutionCount(&decoder->axes[0]),

@@ -12,7 +12,6 @@
 #ifndef QUADRATURE_OUTPUT_H
 #define QUADRATURE_OUTPUT_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -103,6 +102,10 @@ void QuadratureOutput_GetFormattedOutputString(const QuadratureOutput* output, c
 
 // Set number of axes
 void QuadratureOutput_SetNumAxes(QuadratureOutput* output, int num_axes);
+
+//step once in the direction of dir (1 for forward, -1 for backward)
+void QOutputAxisState_StepOne(QOutputAxisState* axis, int dir);
+
 
 #ifdef __cplusplus
 }

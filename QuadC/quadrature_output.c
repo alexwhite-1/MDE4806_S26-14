@@ -229,7 +229,7 @@ void QuadratureOutput_SetNumAxes(QuadratureOutput* output, int num_axes) {
 
 // moves position_count by exactly one step, wraps it, refreshes A/B,
 // and asserts the index pulse when the encoder returns to position 0.
-static void QOutputAxisState_StepOne(QOutputAxisState* axis, int dir) {
+void QOutputAxisState_StepOne(QOutputAxisState* axis, int dir) {
     axis->position_count += dir;
 
     if (axis->position_count < 0)
