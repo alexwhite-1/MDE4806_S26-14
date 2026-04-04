@@ -22,9 +22,10 @@
 #include "spi.h"
 #include "tim.h"
 #include "gpio.h"
+#include "stm32g4xx_it.h"
+
 #include "kalman.h"
 #include "quadrature_output.h"
-#include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -117,13 +118,11 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	if (GetQuadReady())
-	{
+	if (GetQuadReady()) { // Runs every
 		// quadrature output update
-		  QuadratureOutput_Update(&quad_pkg, 0.0, 0.0);
+		QuadratureOutput_Update(&quad_pkg, state_vector.vector[PITCH], 0.0);
 	}
-	if (GetKalmanReady())
-	{
+	if (GetKalmanReady()) {
 	    float dt = ComputeKalmanDT();
 	    if (dt > 0.0f)
 	    {

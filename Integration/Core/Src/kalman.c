@@ -2,12 +2,6 @@
 
 #include <math.h>
 
-#define ROLL 0
-#define PITCH 1
-#define X_AXIS 2
-#define Y_AXIS 3
-#define Z_AXIS 4
-
 // Static functions
 void FillIdentity(float* matrix, int size) {
     for (int i = 0; i < size; i++) {
@@ -42,20 +36,6 @@ void kalman_run( float dt, StateVector* state_vector, ErrorCovarianceMatrix* err
 }
 
 //=== Constructors ===//
-
-/*
-StateVector StateVector_Construct(float roll, float pitch, float gx, float gy, float gz) {
-	StateVector state;
-
-	state.vector[ROLL] = roll;
-	state.vector[PITCH] = pitch;
-	state.vector[X_AXIS] = gx;
-	state.vector[Y_AXIS] = gy;
-	state.vector[Z_AXIS] = gz;
-
-	return state;
-}
-*/
 
 StateVector StateVector_Construct() {
 	StateVector state;
@@ -273,17 +253,3 @@ TrigCache ComputeTrigValues(const float roll, const float pitch) {
 
 	return trig;
 }
-
-// PsudoLookupTableFunctions ~ Will implement later
-float LookupSin(float) {
-	return 1;
-}
-
-float LookupCos(float) {
-	return 1;
-}
-
-float LookupTan(float) {
-	return 1;
-}
-
