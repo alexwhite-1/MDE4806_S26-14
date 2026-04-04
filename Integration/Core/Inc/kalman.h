@@ -1,3 +1,9 @@
+#define ROLL 0
+#define PITCH 1
+#define X_AXIS 2
+#define Y_AXIS 3
+#define Z_AXIS 4
+
 #define MATRIX_SIZE 5
 #define VECTOR_SIZE 2
 
@@ -101,11 +107,3 @@ void UpdateErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const KalmanGainM
 CorrectedGyro ComputeCorrectedValues(const StateVector* state, const GyroSample* gyro);
 
 TrigCache ComputeTrigValues(const float roll, const float pitch);
-
-
-float LookupSin(float);
-
-float LookupCos(float);
-
-float LookupTan(float);
-
