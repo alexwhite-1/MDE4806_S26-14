@@ -105,8 +105,8 @@ int main(void)
 
   StateVector state_vector = StateVector_Construct();
   ErrorCovarianceMatrix error_covariance_matrix = ErrorCovarianceMatrix_Construct();
-  const ProcessNoiseMatrix process_noise_matrix = ProcessNoiseMatrix_Contruct();
-  const MeasurementNoiseMatrix measurement_noise_matrix = MeasurementNoiseMatrix_Contruct();
+  const ProcessNoiseMatrix process_noise_matrix = ProcessNoiseMatrix_Construct();
+  const MeasurementNoiseMatrix measurement_noise_matrix = MeasurementNoiseMatrix_Construct();
 
   QuadratureOutput quad_pkg = QuadratureOutput_Construct(4096, 1);
   QuadratureOutput_Initialize(&quad_pkg, 0.0, 0.0);

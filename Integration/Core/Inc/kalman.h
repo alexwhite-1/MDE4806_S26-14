@@ -1,3 +1,6 @@
+#ifndef KALMAN_H
+#define KALMAN_H
+
 #define ROLL 0
 #define PITCH 1
 #define X_AXIS 2
@@ -76,15 +79,13 @@ void kalman_run(
 
 //=== Constructors ===//
 
-//StateVector StateVector_Construct(float roll, float pitch, float gx, float gy, float gz);
-
 StateVector StateVector_Construct();
 
-ProcessNoiseMatrix ProcessNoiseMatrix_Contruct();
+ProcessNoiseMatrix ProcessNoiseMatrix_Construct();
 
 ErrorCovarianceMatrix ErrorCovarianceMatrix_Construct();
 
-MeasurementNoiseMatrix MeasurementNoiseMatrix_Contruct();
+MeasurementNoiseMatrix MeasurementNoiseMatrix_Construct();
 
 MeasuredVector MeasuredVector_Construct(const AccelSample* accl);
 
@@ -94,16 +95,4 @@ PredictionMatrix PredictionMatrix_Construct(const CorrectedGyro* gyro, const Tri
 
 KalmanGainMatrix KalmanGainMatrix_Construct(const ErrorCovarianceMatrix* error, const MeasurementNoiseMatrix* measurednoise);
 
-//void Kalman_Run(StateVector* state, MeasuredVector* measured, float dt);
-
-//=== Helper Functions ===//
-
-void ComputeErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const PredictionMatrix* predict, const ProcessNoiseMatrix* noise);
-
-void UpdateStateVector(StateVector* state, const KalmanGainMatrix* kalman, const ResidualErrorVector* residualerror, const CorrectedGyro* gyro, const TrigCache* trig, const float dt);
-
-void UpdateErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const KalmanGainMatrix* kalman);
-
-CorrectedGyro ComputeCorrectedValues(const StateVector* state, const GyroSample* gyro);
-
-TrigCache ComputeTrigValues(const float roll, const float pitch);
+#endif

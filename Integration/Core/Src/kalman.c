@@ -2,17 +2,16 @@
 
 #include <math.h>
 
-// Static functions
-void FillIdentity(float* matrix, int size) {
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            matrix[i * size + j] = (i == j) ? 1.0f : 0.0f;
-        }
-    }
-}
+//=== Static Declarations ===//
+static CorrectedGyro ComputeCorrectedValues(const StateVector* state, const GyroSample* gyro);
+static TrigCache ComputeTrigValues(const float roll, const float pitch);
+static void FillIdentity(float* matrix, int size);
+static void ComputeErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const PredictionMatrix* predict, const ProcessNoiseMatrix* noise);
+static void UpdateStateVector(StateVector* state, const KalmanGainMatrix* kalman, const ResidualErrorVector* residualerror, const CorrectedGyro* gyro, const TrigCache* trig, const float dt);
+static void UpdateErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const KalmanGainMatrix* kalman);
 
-//
-void kalman_run( float dt, StateVector* state_vector, ErrorCovarianceMatrix* error_covariance_matrix, const GyroSample* gyro, const AccelSample* accel, const ProcessNoiseMatrix* process_noise_matrix, const MeasurementNoiseMatrix* measurement_noise_matrix) {
+//=== Kalman Filter ===//
+void kalman_run(float dt, StateVector* state_vector, ErrorCovarianceMatrix* error_covariance_matrix, const GyroSample* gyro, const AccelSample* accel, const ProcessNoiseMatrix* process_noise_matrix, const MeasurementNoiseMatrix* measurement_noise_matrix) {
 	// GYRO PORTION
 	CorrectedGyro correct_gyro = ComputeCorrectedValues(state_vector, gyro);
 	TrigCache trig = ComputeTrigValues(state_vector->vector[ROLL], state_vector->vector[PITCH]);
@@ -31,12 +30,9 @@ void kalman_run( float dt, StateVector* state_vector, ErrorCovarianceMatrix* err
 	// UPDATE STATE AND ERROR MATRIX
 	UpdateStateVector(state_vector, &kalman_gain_matrix, &residual_error_vector, &correct_gyro, &trig, dt);
 	UpdateErrorCovarianceMatrix(error_covariance_matrix, &kalman_gain_matrix);
-
-	// DOUBLE OUTPUT
 }
 
 //=== Constructors ===//
-
 StateVector StateVector_Construct() {
 	StateVector state;
 
@@ -47,7 +43,7 @@ StateVector StateVector_Construct() {
 	return state;
 }
 
-ProcessNoiseMatrix ProcessNoiseMatrix_Contruct() {
+ProcessNoiseMatrix ProcessNoiseMatrix_Construct() {
 	ProcessNoiseMatrix noise;
     FillIdentity(&noise.matrix[0][0], MATRIX_SIZE); // 5x5
 	return noise;
@@ -59,7 +55,7 @@ ErrorCovarianceMatrix ErrorCovarianceMatrix_Construct() {
     return covariance;
 }
 
-MeasurementNoiseMatrix MeasurementNoiseMatrix_Contruct() {
+MeasurementNoiseMatrix MeasurementNoiseMatrix_Construct() {
     MeasurementNoiseMatrix noise;
     FillIdentity(&noise.matrix[0][0], VECTOR_SIZE); // 2x2
     return noise;
@@ -146,9 +142,38 @@ KalmanGainMatrix KalmanGainMatrix_Construct(const ErrorCovarianceMatrix* error, 
 }
 
 
-//=== Helper Functions ===//
+//=== Static Helper Functions ===//
 
-void ComputeErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const PredictionMatrix* predict, const ProcessNoiseMatrix* noise) {
+static CorrectedGyro ComputeCorrectedValues(const StateVector* state, const GyroSample* gyro) {
+	CorrectedGyro correctedgyro;
+
+	correctedgyro.Gx = gyro->gx - state->vector[X_AXIS];
+	correctedgyro.Gy = gyro->gy - state->vector[Y_AXIS];
+	correctedgyro.Gz = gyro->gz - state->vector[Z_AXIS];
+
+	return correctedgyro;
+}
+
+static TrigCache ComputeTrigValues(const float roll, const float pitch) {
+	TrigCache trig;
+
+	trig.cos_r = cosf(roll);
+	trig.sin_r = sinf(roll);
+	trig.tan_p = tanf(pitch);
+	trig.sec2_p = 1 + (trig.tan_p*trig.tan_p);
+
+	return trig;
+}
+
+static void FillIdentity(float* matrix, int size) {
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            matrix[i * size + j] = (i == j) ? 1.0f : 0.0f;
+        }
+    }
+}
+
+static void ComputeErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const PredictionMatrix* predict, const ProcessNoiseMatrix* noise) {
 	float A[MATRIX_SIZE][MATRIX_SIZE] = {0};
 	float B[MATRIX_SIZE][MATRIX_SIZE] = {0};
 
@@ -178,7 +203,7 @@ void ComputeErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const Prediction
     }
 }
 
-void UpdateStateVector(StateVector* state, const KalmanGainMatrix* kalman, const ResidualErrorVector* residualerror, const CorrectedGyro* gyro, const TrigCache* trig, const float dt) {
+static void UpdateStateVector(StateVector* state, const KalmanGainMatrix* kalman, const ResidualErrorVector* residualerror, const CorrectedGyro* gyro, const TrigCache* trig, const float dt) {
 	StateVector state_l, state_d;
 	for (int i = 2; i < MATRIX_SIZE; i++) {
 		state_l.vector[i] = state->vector[i];
@@ -199,7 +224,7 @@ void UpdateStateVector(StateVector* state, const KalmanGainMatrix* kalman, const
 	}
 }
 
-void UpdateErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const KalmanGainMatrix* kalman) {
+static void UpdateErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const KalmanGainMatrix* kalman) {
 	// NOTE: Function works when H = {{1,0,0,0,0},{0,1,0,0,0}}
 
 	float A[MATRIX_SIZE][MATRIX_SIZE] = {0};
@@ -231,25 +256,4 @@ void UpdateErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const KalmanGainM
 			error->matrix[i][j] = B[i][j];
         }
     }
-}
-
-CorrectedGyro ComputeCorrectedValues(const StateVector* state, const GyroSample* gyro) {
-	CorrectedGyro correctedgyro;
-
-	correctedgyro.Gx = gyro->gx - state->vector[X_AXIS];
-	correctedgyro.Gy = gyro->gy - state->vector[Y_AXIS];
-	correctedgyro.Gz = gyro->gz - state->vector[Z_AXIS];
-
-	return correctedgyro;
-}
-
-TrigCache ComputeTrigValues(const float roll, const float pitch) {
-	TrigCache trig;
-
-	trig.cos_r = cosf(roll);
-	trig.sin_r = sinf(roll);
-	trig.tan_p = tanf(pitch);
-	trig.sec2_p = 1 + (trig.tan_p*trig.tan_p);
-
-	return trig;
 }
