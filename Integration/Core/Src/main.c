@@ -118,14 +118,13 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	if (GetQuadReady()) { // Runs every
+	if (GetQuadReady()) { // Runs every 6900 Hz (approx. 0.145 milliseconds)
 		// quadrature output update
 		QuadratureOutput_Update(&quad_pkg, state_vector.vector[PITCH], 0.0);
 	}
-	if (GetKalmanReady()) {
+	if (GetKalmanReady()) { // Runs every 640 Hz (approx. 1.5625 milliseconds)
 	    float dt = ComputeKalmanDT();
-	    if (dt > 0.0f)
-	    {
+	    if (dt > 0.0f) {
 	    	// SPI read gyro
 	    	GyroSample gyro_sample;
 
