@@ -23,6 +23,7 @@
 #include "tim.h"
 #include "gpio.h"
 #include "kalman.h"
+#include "quadrature_output.h"
 #include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
