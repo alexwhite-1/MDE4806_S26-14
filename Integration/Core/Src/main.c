@@ -22,13 +22,12 @@
 #include "spi.h"
 #include "tim.h"
 #include "gpio.h"
-#include "stm32g4xx_it.h"
 
-#include "kalman.h"
-#include "quadrature_output.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "kalman.h"
+#include "quadrature_output.h"
+#include "stm32g4xx_it.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,7 +95,6 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_SPI1_Init();
-  MX_SPI2_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
@@ -117,32 +115,33 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
 	if (GetQuadReady()) { // Runs every 6900 Hz (approx. 0.145 milliseconds)
 		// quadrature output update
 		QuadratureOutput_Update(&quad_pkg, state_vector.vector[PITCH], 0.0);
 	}
 	if (GetKalmanReady()) { // Runs every 640 Hz (approx. 1.5625 milliseconds)
-	    float dt = ComputeKalmanDT();
-	    if (dt > 0.0f) {
-	    	// SPI read gyro
-	    	GyroSample gyro_sample;
+		float dt = ComputeKalmanDT();
+		if (dt > 0.0f) {
+			// SPI read gyro
+			GyroSample gyro_sample;
 
-	    	// MCU ADC read accel
-	    	AccelSample accel_sample;
+			// MCU ADC read accel
+			AccelSample accel_sample;
 
-	    	// Run Kalman filter
-	    	kalman_run(
+			// Run Kalman filter
+			kalman_run(
 					dt,
-	    			&state_vector,
+					&state_vector,
 					&error_covariance_matrix,
 					&gyro_sample,
 					&accel_sample,
 					&process_noise_matrix,
 					&measurement_noise_matrix
 			);
-	    }
+		}
 	}
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
