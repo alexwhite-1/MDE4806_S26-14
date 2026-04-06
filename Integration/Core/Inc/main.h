@@ -57,6 +57,20 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define SPI_CS_Pin GPIO_PIN_4
+#define SPI_CS_GPIO_Port GPIOA
+#define Acc_Zout_Pin GPIO_PIN_12
+#define Acc_Zout_GPIO_Port GPIOB
+#define Axis2B_Pin GPIO_PIN_9
+#define Axis2B_GPIO_Port GPIOA
+#define Axis2A_Pin GPIO_PIN_10
+#define Axis2A_GPIO_Port GPIOA
+#define Axis1B_Pin GPIO_PIN_11
+#define Axis1B_GPIO_Port GPIOA
+#define Axis1A_Pin GPIO_PIN_12
+#define Axis1A_GPIO_Port GPIOA
+#define LED_Blink_Pin GPIO_PIN_15
+#define LED_Blink_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
