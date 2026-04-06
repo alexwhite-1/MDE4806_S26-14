@@ -61,6 +61,10 @@ void Error_Handler(void);
 #define SPI_CS_GPIO_Port GPIOA
 #define Acc_Zout_Pin GPIO_PIN_12
 #define Acc_Zout_GPIO_Port GPIOB
+#define Acc_Yout_Pin GPIO_PIN_14
+#define Acc_Yout_GPIO_Port GPIOB
+#define Acc_Xout_Pin GPIO_PIN_15
+#define Acc_Xout_GPIO_Port GPIOB
 #define Axis2B_Pin GPIO_PIN_9
 #define Axis2B_GPIO_Port GPIOA
 #define Axis2A_Pin GPIO_PIN_10
