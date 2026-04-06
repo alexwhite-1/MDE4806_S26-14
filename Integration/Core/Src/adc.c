@@ -301,6 +301,22 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 }
 
 /* USER CODE BEGIN 1 */
+uint32_t ADC_VAL = 0;
 
+// Temporary
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC1)
+    {
+        if (ADC_VAL > 32767)
+        {
+            HAL_GPIO_WritePin(GPIOA, Axis1A_Pin, GPIO_PIN_SET);
+        }
+        else
+        {
+            HAL_GPIO_WritePin(GPIOA, Axis1A_Pin, GPIO_PIN_RESET);
+        }
+    }
+}
 /* USER CODE END 1 */
 

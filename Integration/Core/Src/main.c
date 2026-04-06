@@ -55,14 +55,16 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+void DWT_Init(void);
 float ComputeKalmanDT(void);
-
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+long map(long x, long in_min, long in_max, long out_min, long out_max)
+{
+	return (x - in_min) * (out_max - out_min + 1) / (in_max - in_min + 1) + out_min;
+}
 /* USER CODE END 0 */
 
 /**
@@ -89,7 +91,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  DWT_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -127,9 +129,15 @@ int main(void)
 		if (dt > 0.0f) {
 			// SPI read gyro
 			GyroSample gyro_sample;
+			gyro_sample.gx = 0;
+			gyro_sample.gy = 0;
+			gyro_sample.gz = 0;
 
 			// MCU ADC read accel
 			AccelSample accel_sample;
+			accel_sample.ax = 0;
+			accel_sample.ay = 0;
+			accel_sample.az = 0;
 
 			// Run Kalman filter
 			kalman_run(
@@ -197,6 +205,19 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+// https://tinyurl.com/yc4ychvr
+void DWT_Init(void) {
+	// Enable access to DWT registers
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+
+    // Reset the cycle counter
+    DWT->CYCCNT = 0;
+
+    // Start counting CPU cycles
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+}
+
 float ComputeKalmanDT(void)
 {
     static uint32_t last_tick = 0;
