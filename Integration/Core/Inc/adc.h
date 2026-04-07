@@ -29,7 +29,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "sensor.h"
 /* USER CODE END Includes */
 
 extern ADC_HandleTypeDef hadc1;
@@ -44,7 +44,8 @@ void MX_ADC1_Init(void);
 void MX_ADC2_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void ADC_Start(void);
+AccelSample ADC_GetAccelSample(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

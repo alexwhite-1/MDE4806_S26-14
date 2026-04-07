@@ -21,7 +21,17 @@
 #include "adc.h"
 
 /* USER CODE BEGIN 0 */
+#define MAX_16BIT		65536.0f
+#define V_REF 			3.3f
+#define SENSITIVITY 	0.2f
+#define V1P8ANA     	1.8f
+#define ZERO_G_OFFSET 	(V1P8ANA / 2.0f)
 
+static uint32_t ADC1_RAW_VAL[2];
+static uint32_t ADC2_RAW_VAL;
+static float ADC_VAL[3];
+
+static float Convert_RawToAccel(uint32_t raw);
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;
@@ -81,7 +91,7 @@ void MX_ADC1_Init(void)
 
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_11;
+  sConfig.Channel = ADC_CHANNEL_5;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
@@ -94,7 +104,7 @@ void MX_ADC1_Init(void)
 
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_5;
+  sConfig.Channel = ADC_CHANNEL_11;
   sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -126,11 +136,11 @@ void MX_ADC2_Init(void)
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc2.Init.GainCompensation = 0;
-  hadc2.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  hadc2.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc2.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc2.Init.LowPowerAutoWait = DISABLE;
   hadc2.Init.ContinuousConvMode = ENABLE;
-  hadc2.Init.NbrOfConversion = 2;
+  hadc2.Init.NbrOfConversion = 1;
   hadc2.Init.DiscontinuousConvMode = DISABLE;
   hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -154,14 +164,6 @@ void MX_ADC2_Init(void)
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure Regular Channel
-  */
-  sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -337,21 +339,39 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 }
 
 /* USER CODE BEGIN 1 */
-uint32_t ADC_VAL = 0;
+void ADC_Start(void) {
+	for (int i = 0; i < 3; i++) ADC_VAL[i] = 0;
 
-// Temporary
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
-    if (hadc->Instance == ADC1)
-    {
-        if (ADC_VAL > 32767)
-        {
-            HAL_GPIO_WritePin(GPIOA, Axis1A_Pin, GPIO_PIN_SET);
-        }
-        else
-        {
-            HAL_GPIO_WritePin(GPIOA, Axis1A_Pin, GPIO_PIN_RESET);
-        }
+	HAL_ADC_Start_DMA(&hadc1, ADC1_RAW_VAL, 2);
+	HAL_ADC_Start_DMA(&hadc2, &ADC2_RAW_VAL, 1);
+}
+
+AccelSample ADC_GetAccelSample(void) {
+	AccelSample sample;
+
+	sample.ax = ADC_VAL[0];
+	sample.ay = ADC_VAL[1];
+	sample.az = ADC_VAL[2];
+
+	return sample;
+}
+
+float Convert_RawToAccel(uint32_t raw) {
+    uint16_t raw16 = raw & 0xFFFF;
+	return ((raw16 / MAX_16BIT) * V_REF - ZERO_G_OFFSET) / SENSITIVITY;
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+	// ADC2 -> CHANNEL 15 -> X-axis
+	// ADC1 -> CHANNEL  5 -> Y-axis
+	// ADC1 -> CHANNEL 11 -> Z-axis
+
+	if(hadc->Instance == ADC2) {
+    	ADC_VAL[0] = Convert_RawToAccel(ADC2_RAW_VAL); // X
+    }
+	else if (hadc->Instance == ADC1) {
+		ADC_VAL[1] = Convert_RawToAccel(ADC1_RAW_VAL[0]); // Y-
+    	ADC_VAL[2] = Convert_RawToAccel(ADC1_RAW_VAL[1]); // Z
     }
 }
 /* USER CODE END 1 */

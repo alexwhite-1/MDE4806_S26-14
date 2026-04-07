@@ -61,10 +61,7 @@ float ComputeKalmanDT(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-long map(long x, long in_min, long in_max, long out_min, long out_max)
-{
-	return (x - in_min) * (out_max - out_min + 1) / (in_max - in_min + 1) + out_min;
-}
+
 /* USER CODE END 0 */
 
 /**
@@ -105,6 +102,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim7);
+  ADC_Start();
 
   StateVector state_vector = StateVector_Construct();
   ErrorCovarianceMatrix error_covariance_matrix = ErrorCovarianceMatrix_Construct();
@@ -134,10 +132,7 @@ int main(void)
 			gyro_sample.gz = 0;
 
 			// MCU ADC read accel
-			AccelSample accel_sample;
-			accel_sample.ax = 0;
-			accel_sample.ay = 0;
-			accel_sample.az = 0;
+			AccelSample accel_sample = ADC_GetAccelSample();
 
 			// Run Kalman filter
 			kalman_run(
@@ -151,10 +146,11 @@ int main(void)
 			);
 		}
 	}
+  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+
   /* USER CODE END 3 */
 }
 
@@ -218,15 +214,13 @@ void DWT_Init(void) {
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 
-float ComputeKalmanDT(void)
-{
+float ComputeKalmanDT(void) {
     static uint32_t last_tick = 0;
     static bool initialized = false;
 
     uint32_t now = DWT->CYCCNT;
 
-    if (!initialized)
-    {
+    if (!initialized) {
         last_tick = now;
         initialized = true;
         return 0.0f;
