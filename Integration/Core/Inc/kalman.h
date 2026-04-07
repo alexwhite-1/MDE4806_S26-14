@@ -1,6 +1,8 @@
 #ifndef KALMAN_H
 #define KALMAN_H
 
+#include "sensor.h"
+
 #define ROLL 0
 #define PITCH 1
 #define X_AXIS 2
@@ -41,18 +43,6 @@ typedef struct {
 typedef struct {
 	float matrix[MATRIX_SIZE][VECTOR_SIZE];
 } KalmanGainMatrix; // K
-
-typedef struct {
-	float gx;
-	float gy;
-	float gz;
-} GyroSample;
-
-typedef struct {
-	float ax;
-	float ay;
-	float az;
-} AccelSample;
 
 typedef struct {
 	float Gx;
