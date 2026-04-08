@@ -133,7 +133,9 @@ int main(void)
 
 			// MCU ADC read accel
 			AccelSample accel_sample = ADC_GetAccelSample();
-
+			float ax = accel_sample.ax;
+			float ay = accel_sample.ay;
+			float az = accel_sample.az;
 			// Run Kalman filter
 			kalman_run(
 					dt,
