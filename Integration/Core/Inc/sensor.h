@@ -1,6 +1,10 @@
 #ifndef SENSOR_H
 #define SENSOR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
 	float gx;
 	float gy;
@@ -12,5 +16,9 @@ typedef struct {
 	float ay;
 	float az;
 } AccelSample;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
