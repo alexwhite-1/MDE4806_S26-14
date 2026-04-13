@@ -1,6 +1,9 @@
 #include "kalman.h"
 
 #include <math.h>
+#ifdef DEBUG_KALMAN
+	#include <stdio.h>
+#endif // DEBUG_KALMAN
 
 //=== Static Declarations ===//
 static CorrectedGyro ComputeCorrectedValues(const StateVector* state, const GyroSample* gyro);
@@ -15,17 +18,43 @@ void kalman_run(float dt, StateVector* state_vector, ErrorCovarianceMatrix* erro
 	// GYRO PORTION
 	CorrectedGyro correct_gyro = ComputeCorrectedValues(state_vector, gyro);
 	TrigCache trig = ComputeTrigValues(state_vector->vector[ROLL], state_vector->vector[PITCH]);
+	#ifdef DEBUG_KALMAN
+		printf("Trig: sin_r=%f, cos_r=%f, tan_p=%f, sec2_p=%f\n", trig.sin_r, trig.cos_r, trig.tan_p, trig.sec2_p);
+	#endif // DEBUG_KALMAN
 
 	PredictionMatrix prediction_matrix = PredictionMatrix_Construct(&correct_gyro, &trig, dt);
+	#ifdef DEBUG_KALMAN
+		printf("F matrix:\n");
+		for (int i = 0; i < 2; i++) {
+			printf("  [");
+			for (int j = 0; j < 5; j++) {
+				printf("%f, ", prediction_matrix.matrix[i][j]);
+			}
+			printf("]\n");
+		}
+	#endif // DEBUG_KALMAN
 
 	ComputeErrorCovarianceMatrix(error_covariance_matrix, &prediction_matrix, process_noise_matrix);
 
 	// ACC PORTION
 	MeasuredVector measured_vector = MeasuredVector_Construct(accel);
+	#ifdef DEBUG_KALMAN
+		printf("Z = {%f, %f}\n", measured_vector.vector[0], measured_vector.vector[1]);
+	#endif // DEBUG_KALMAN
+
 	ResidualErrorVector residual_error_vector =  ResidualErrorVector_Construct(state_vector, &measured_vector);
+	#ifdef DEBUG_KALMAN
+		printf("Y = {%f, %f}\n", residual_error_vector.vector[0], residual_error_vector.vector[1]);
+	#endif // DEBUG_KALMAN
 
 	// KALMAN CALC
 	KalmanGainMatrix kalman_gain_matrix = KalmanGainMatrix_Construct(error_covariance_matrix, measurement_noise_matrix);
+	#ifdef DEBUG_KALMAN
+		printf("K = \n");
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			printf("[%f, %f]\n", kalman_gain_matrix.matrix[i][0], kalman_gain_matrix.matrix[i][1]);
+		}
+	#endif // DEBUG_KALMAN
 
 	// UPDATE STATE AND ERROR MATRIX
 	UpdateStateVector(state_vector, &kalman_gain_matrix, &residual_error_vector, &correct_gyro, &trig, dt);
@@ -94,7 +123,7 @@ PredictionMatrix PredictionMatrix_Construct(const CorrectedGyro* gyro, const Tri
 	predict.matrix[0][3] = -trig->sin_r*trig->tan_p*dt;
 	predict.matrix[0][4] = -trig->cos_r*trig->tan_p*dt;
 
-	predict.matrix[1][0] = -gyro->Gy*trig->sin_r - gyro->Gz*trig->cos_r;
+	predict.matrix[1][0] = -(gyro->Gy*trig->sin_r + gyro->Gz*trig->cos_r)*dt;
 	predict.matrix[1][3] = -trig->cos_r*dt;
 	predict.matrix[1][4] = trig->sin_r*dt;
 
@@ -213,10 +242,22 @@ static void UpdateStateVector(StateVector* state, const KalmanGainMatrix* kalman
 	state_l.vector[ROLL] = state->vector[ROLL] + (gyro->Gx + gyro->Gy*trig->sin_r*trig->tan_p + gyro->Gz*trig->cos_r*trig->tan_p)*dt;
 	state_l.vector[PITCH] = state->vector[PITCH] + (gyro->Gy*trig->cos_r - gyro->Gz*trig->sin_r)*dt;
 
+	#ifdef DEBUG_KALMAN
+		printf("state_l (predicted from motion) = {%f, %f, %f, %f, %f}\n",
+			state_l.vector[0], state_l.vector[1], state_l.vector[2],
+			state_l.vector[3], state_l.vector[4]);
+	#endif // DEBUG_KALMAN
+
 	// Calculate delta x = Ky
 	for (int i = 0; i < MATRIX_SIZE; i++) {
 		state_d.vector[i] = kalman->matrix[i][0]*residualerror->vector[0] + kalman->matrix[i][1]*residualerror->vector[1];
 	}
+
+	#ifdef DEBUG_KALMAN
+		printf("state_d (K*Y correction) = {%f, %f, %f, %f, %f}\n",
+			state_d.vector[0], state_d.vector[1], state_d.vector[2],
+			state_d.vector[3], state_d.vector[4]);
+	#endif // DEBUG_KALMAN
 
 	// Update State vector (x- + delta x)
 	for (int i = 0; i < MATRIX_SIZE; i++) {

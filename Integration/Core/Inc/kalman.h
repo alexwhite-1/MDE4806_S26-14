@@ -1,7 +1,13 @@
 #ifndef KALMAN_H
 #define KALMAN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "sensor.h"
+
+//#define DEBUG_KALMAN
 
 #define ROLL 0
 #define PITCH 1
@@ -84,5 +90,9 @@ ResidualErrorVector ResidualErrorVector_Construct(const StateVector* state, cons
 PredictionMatrix PredictionMatrix_Construct(const CorrectedGyro* gyro, const TrigCache* trig, const float dt);
 
 KalmanGainMatrix KalmanGainMatrix_Construct(const ErrorCovarianceMatrix* error, const MeasurementNoiseMatrix* measurednoise);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

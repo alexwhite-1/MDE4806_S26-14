@@ -18,8 +18,21 @@ void kalman_run(float dt, StateVector* state_vector, ErrorCovarianceMatrix* erro
 	// GYRO PORTION
 	CorrectedGyro correct_gyro = ComputeCorrectedValues(state_vector, gyro);
 	TrigCache trig = ComputeTrigValues(state_vector->vector[ROLL], state_vector->vector[PITCH]);
+	#ifdef DEBUG_KALMAN
+		printf("Trig: sin_r=%f, cos_r=%f, tan_p=%f, sec2_p=%f\n", trig.sin_r, trig.cos_r, trig.tan_p, trig.sec2_p);
+	#endif // DEBUG_KALMAN
 
 	PredictionMatrix prediction_matrix = PredictionMatrix_Construct(&correct_gyro, &trig, dt);
+	#ifdef DEBUG_KALMAN
+		printf("F matrix:\n");
+		for (int i = 0; i < 2; i++) {
+			printf("  [");
+			for (int j = 0; j < 5; j++) {
+				printf("%f, ", prediction_matrix.matrix[i][j]);
+			}
+			printf("]\n");
+		}
+	#endif // DEBUG_KALMAN
 
 	ComputeErrorCovarianceMatrix(error_covariance_matrix, &prediction_matrix, process_noise_matrix);
 
@@ -110,7 +123,7 @@ PredictionMatrix PredictionMatrix_Construct(const CorrectedGyro* gyro, const Tri
 	predict.matrix[0][3] = -trig->sin_r*trig->tan_p*dt;
 	predict.matrix[0][4] = -trig->cos_r*trig->tan_p*dt;
 
-	predict.matrix[1][0] = -gyro->Gy*trig->sin_r - gyro->Gz*trig->cos_r;
+	predict.matrix[1][0] = -(gyro->Gy*trig->sin_r + gyro->Gz*trig->cos_r)*dt;
 	predict.matrix[1][3] = -trig->cos_r*dt;
 	predict.matrix[1][4] = trig->sin_r*dt;
 
