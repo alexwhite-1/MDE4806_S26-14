@@ -1,8 +1,11 @@
 __pycache__out/
 __pycache__/
 
-QuadC/out/ 
 QuadC/.vs/
+QuadC/out/ 
+
+TEST_Kalman/.vs
+TEST_Kalman/out
 
 Integration/Debug
 
