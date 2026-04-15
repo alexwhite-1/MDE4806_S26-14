@@ -1,0 +1,124 @@
+[0.000] initConfigParams():  Configuration flags start
+[0.000] initConfigParams():   semihost-console-port          61236
+[0.000] initConfigParams():   semihosting                    "disabled"
+[0.000] initConfigParams():   external-init                  false
+[0.000] initConfigParams():   pend-halt-timeout              -1
+[0.000] initConfigParams():   halt                           false
+[0.000] initConfigParams():   config-file                    ""
+[0.000] initConfigParams():   persistent                     false
+[0.000] initConfigParams():  +log-file                       "C:\1_SENIOR_SPRING\senior_design\STM32_tests\Debug\st-link_gdbserver_log.txt"
+[0.000] initConfigParams():  +log-level                      31
+[0.000] initConfigParams():  +port-number                    61234
+[0.000] initConfigParams():  +verbose                        true
+[0.000] initConfigParams():   refresh-delay                  15
+[0.000] initConfigParams():   target-sel                     ""
+[0.000] initConfigParams():   incremental                    false
+[0.000] initConfigParams():  +verify                         true
+[0.000] initConfigParams():  +swd                            true
+[0.000] initConfigParams():   swo-port                       61234
+[0.000] initConfigParams():   cpu-clock                      8000000
+[0.000] initConfigParams():   swo-clock-div                  128
+[0.000] initConfigParams():   initialize-reset               false
+[0.000] initConfigParams():   debuggers                      false
+[0.000] initConfigParams():   serial-number                  ""
+[0.000] initConfigParams():  +apid                           0
+[0.000] initConfigParams():  +attach                         true
+[0.000] initConfigParams():   shared                         false
+[0.000] initConfigParams():   erase-all                      false
+[0.000] initConfigParams():   memory-map                     ""
+[0.000] initConfigParams():   ext-memory-loaders             false
+[0.000] initConfigParams():   extload_init                   (null)
+[0.000] initConfigParams():   extload                        (null)
+[0.000] initConfigParams():  +stm32cubeprogrammer-path       "C:\ST\STM32CubeIDE_2.0.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.cubeprogrammer.win32_2.2.300.202508131133\tools\bin"
+[0.000] initConfigParams():   temp-path                      ""
+[0.000] initConfigParams():   preserve-temps                 false
+[0.000] initConfigParams():  +frequency                      1000
+[0.000] initConfigParams():   licenses                       false
+[0.000] initConfigParams():   ignore-rest                    false
+[0.000] initConfigParams():   version                        false
+[0.000] initConfigParams():   help                           false
+[0.000] initConfigParams():  Configuration flags end
+[0.002] init():  STMicroelectronics ST-LINK GDB server. Version 7.12.0
+Copyright (c) 2025, STMicroelectronics. All rights reserved.
+[0.012] openDevice():  COM frequency = 1000 kHz
+[0.012] openDevice():  Target connection mode: Attach
+[0.017] readFromTarget():  Reading ROM table for AP 0 @0xe00fffd0
+[0.020] reset_hw_wtchpt_module():  Hardware watchpoint supported by the target 
+[0.025] initContext():  ST-LINK Firmware version : V3J17M10
+[0.026] initContext():  Device ID: 0x468
+[0.026] initContext():  PC: 0x5
+[0.027] initContext():  ST-LINK detects target voltage = 3.27 V
+[0.027] initContext():  ST-LINK device status: UNKNOWN
+[0.027] initServerContext():  ST-LINK device initialization OK
+[0.028] pollAndNotifyRun():  Stm32Device, pollAndNotify running...
+[0.030] updateState():  SwvSrv state change: 0 -> 1
+[0.030] WaitConnection():  Waiting for connection on port 61235...
+[0.030] WaitConnection():  Waiting for connection on port 61234...
+[3.616] Device_GetStatus():  ST-LINK device status: RUN_MODE
+[4.363] WaitConnection():  Accepted connection on port 61234...
+[4.364] haltOnConnect():  Try halt...
+[4.365] WaitConnection():  Waiting for connection on port 61234...
+[4.366] run():  GDB session thread running
+[4.366] handleSessionEvent():  GdbSessionManager, session started: 1
+[4.378] read():  <812> Rx: +
+[4.378] read():  <812> Rx: $qSupported:multiprocess+;swbreak+;hwbreak+;qRelocInsn+;fork-events+;vfork-events+;exec-events+;vContSupported+;QThreadEvents+;no-resumed+;memory-tagging+#ec
+[4.378] Device_GetStatus():  ST-LINK device status: HALT_MODE
+[4.379] write():  <812> Tx: +
+[4.379] write():  <812> Tx: $PacketSize=4000;qXfer:memory-map:read+;qXfer:features:read+;QStartNoAckMode+;QNonStop+;qXfer:threads:read+;hwbreak+;swbreak+#f3
+[4.379] read():  <812> Rx: +
+[4.379] read():  <812> Rx: $vCont?#49
+[4.379] write():  <812> Tx: +
+[4.379] write():  <812> Tx: $vCont;c;s;t#05
+[4.379] read():  <812> Rx: +$vMustReplyEmpty#3a
+[4.393] write():  <812> Tx: +
+[4.393] write():  <812> Tx: $#00
+[4.394] read():  <812> Rx: +
+[4.394] read():  <812> Rx: $QStartNoAckMode#b0
+[4.394] write():  <812> Tx: +
+[4.394] write():  <812> Tx: $OK#9a
+[4.394] read():  <812> Rx: +
+[4.394] read():  <812> Rx: $Hg0#df
+[4.394] write():  <812> Tx: $#00
+[4.395] read():  <812> Rx: $qXfer:features:read:target.xml:0,1000#0c
+[4.395] write():  <812> Tx: $l<?xml version="1.0"?><!DOCTYPE target SYSTEM "gdb-target.dtd"><target><feature name="org.gnu.gdb.arm.m-profile"><reg name="r0" bitsize="32" type="uint32" regnum="0"/><reg name="r1" bitsize="32" type="uint32" regnum="1"/><reg name="r2" bitsize="32" type="uint32" regnum="2"/><reg name="r3" bitsize="32" type="uint32" regnum="3"/><reg name="r4" bitsize="32" type="uint32" regnum="4"/><reg name="r5" bitsize="32" type="uint32" regnum="5"/><reg name="r6" bitsize="32" type="uint32" regnum="6"/><reg name="r7" bitsize="32" type="uint32" regnum="7"/><reg name="r8" bitsize="32" type="uint32" regnum="8"/><reg name="r9" bitsize="32" type="uint32" regnum="9"/><reg name="r10" bitsize="32" type="uint32" regnum="10"/><reg name="r11" bitsize="32" type="uint32" regnum="11"/><reg name="r12" bitsize="32" type="uint32" regnum="12"/><reg name="sp" bitsize="32" type="data_ptr" regnum="13"/><reg name="lr" bitsize="32" type="int" regnum="14"/><reg name="pc" bitsize="32" type="code_ptr" regnum="15"/><reg name="xpsr" bitsize="32" type="int" regnum="25"/></feature><feature name="org.gnu.gdb.arm.vfp"><reg name="d0" bitsize="64" type="ieee_double" regnum="26"/><reg name="d1" bitsize="64" type="ieee_double" regnum="27"/><reg name="d2" bitsize="64" type="ieee_double" regnum="28"/><reg name="d3" bitsize="64" type="ieee_double" regnum="29"/><reg name="d4" bitsize="64" type="ieee_double" regnum="30"/><reg name="d5" bitsize="64" type="ieee_double" regnum="31"/><reg name="d6" bitsize="64" type="ieee_double" regnum="32"/><reg name="d7" bitsize="64" type="ieee_double" regnum="33"/><reg name="d8" bitsize="64" type="ieee_double" regnum="34"/><reg name="d9" bitsize="64" type="ieee_double" regnum="35"/><reg name="d10" bitsize="64" type="ieee_double" regnum="36"/><reg name="d11" bitsize="64" type="ieee_double" regnum="37"/><reg name="d12" bitsize="64" type="ieee_double" regnum="38"/><reg name="d13" bitsize="64" type="ieee_double" regnum="39"/><reg name="d14" bitsize="64" type="ieee_double" regnum="40"/><reg name="d15" bitsize="64" type="ieee_double" regnum="41"/><reg name="fpscr" bitsize="32" type="int" group="float" regnum="42"/></feature><feature name="org.gnu.gdb.arm.m-system"><reg name="primask" bitsize="32" type="uint32" regnum="93"/><reg name="basepri" bitsize="32" type="uint32" regnum="94"/><reg name="faultmask" bitsize="32" type="uint32" regnum="95"/><reg name="control" bitsize="32" type="uint32" regnum="96"/><reg name="msp" bitsize="32" type="data_ptr" regnum="97"/><reg name="psp" bitsize="32" type="data_ptr" regnum="98"/></feature></target>#e2
+[4.399] read():  <812> Rx: $QNonStop:0#8c
+[4.399] write():  <812> Tx: $OK#9a
+[4.400] read():  <812> Rx: $qTStatus#49
+[4.400] write():  <812> Tx: $#00
+[4.400] read():  <812> Rx: $?#3f
+[4.400] write():  <812> Tx: $S05#b8
+[4.401] read():  <812> Rx: $qXfer:threads:read::0,1000#92
+[4.401] write():  <812> Tx: $l<?xml version="1.0"?><threads><thread id="1" core="0" name="main"></thread></threads>#f7
+[4.402] read():  <812> Rx: $qAttached#8f
+[4.402] write():  <812> Tx: $#00
+[4.402] read():  <812> Rx: $Hc-1#09
+[4.402] write():  <812> Tx: $#00
+[4.403] read():  <812> Rx: $qC#b4
+[4.403] write():  <812> Tx: $QC1#c5
+[4.403] read():  <812> Rx: $qOffsets#4b
+[4.403] write():  <812> Tx: $#00
+[4.404] read():  <812> Rx: $g#67
+[4.405] printAllRegisters():  Failed to read all registers from target
+[4.405] handlePacket():  Failed to read registers from target
+[4.406] write():  <812> Tx: $E31#a9
+[4.407] run():  GDB session terminated 
+[4.407] handleSessionEvent():  GdbSessionManager, session terminated: 1
+[4.407] handleSessionEvent():  GdbSrv, last session terminated, signal dispose
+[4.407] stop():  Stopping port 61234
+[4.471] WaitConnection():  Received stop for port 61234, not accepting new connections.
+[4.471] deInit():  GdbSrv, deInit entry.
+[4.471] deInit():  GdbSessionManager, deInit entry.
+[4.502] ~GdbSession():  GDB session disposed: 1
+[4.503] deInit():  GdbSessionManager, deInit exit
+[4.503] deInit():  SwvSrv deInit entry
+[4.503] stop():  Stopping port 61235
+[4.553] stop():  Stopping port 61234
+[4.612] WaitConnection():  Received stop for port 61235, not accepting new connections.
+[4.612] deInit():  SwvSrv deInit exit
+[4.612] deInit():  SemihostSrv deInit entry
+[4.612] deInit():  SemihostSrv deInit exit
+[4.612] closeDevice():  Stm32Device, closeDevice() entry
+[4.628] pollAndNotifyRun():  Stm32Device, pollAndNotify stopped
+[4.637] closeDevice():  Stm32Device, closeDevice() exit
+[4.637] deInit():  Stm32Device, deInit success
+[4.637] deInit():  GdbSrv, deInit exit.

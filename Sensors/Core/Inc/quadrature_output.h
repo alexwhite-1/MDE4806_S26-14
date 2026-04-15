@@ -12,12 +12,12 @@
 #ifndef QUADRATURE_OUTPUT_H
 #define QUADRATURE_OUTPUT_H
 
-#include <stdbool.h>
-#include <stddef.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <stdbool.h>
+#include <stddef.h>
 
 // Structure to hold formatted quadrature output: Axis 1 A, Axis 1 B, Axis 2 A, Axis 2 B, Index
 typedef struct {
@@ -102,6 +102,10 @@ void QuadratureOutput_GetFormattedOutputString(const QuadratureOutput* output, c
 
 // Set number of axes
 void QuadratureOutput_SetNumAxes(QuadratureOutput* output, int num_axes);
+
+//step once in the direction of dir (1 for forward, -1 for backward)
+void QOutputAxisState_StepOne(QOutputAxisState* axis, int dir);
+
 
 #ifdef __cplusplus
 }

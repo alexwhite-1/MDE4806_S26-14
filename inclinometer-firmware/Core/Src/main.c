@@ -2,7 +2,7 @@
 /**
   ******************************************************************************
   * @file           : main.c
-  * @brief          : Main program body
+  * @brief          : Main program body — Kalman filter + quadrature output
   ******************************************************************************
   */
 /* USER CODE END Header */
@@ -11,22 +11,23 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "kalman.h"
+#include "quadrature_output.h"
+#include "stm32g4xx_it.h"
+#include <math.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define CLOCK_SPEED 138000000.0f
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -36,18 +37,51 @@ DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc2;
 
 SPI_HandleTypeDef hspi1;
+DMA_HandleTypeDef hdma_spi1_rx;
+
+TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN PV */
-volatile uint16_t adc_buf[2] = {0};  /* [0]=Y (IN5/PB14), [1]=Z (IN11/PB12) */
-volatile uint16_t adc_x      = 0;    /* X (ADC2_IN15/PB15) */
+/* --- Accelerometer (ADC, DMA) --- */
+volatile uint16_t adc_buf[2] = {0};  /* [0]=Y (CH5/PB14), [1]=Z (CH11/PB12) */
+volatile uint16_t adc_x      = 0;    /* X  (CH15/PB15, ADC2) */
 volatile float    accel_x    = 0.0f;
 volatile float    accel_y    = 0.0f;
 volatile float    accel_z    = 0.0f;
 
-volatile uint8_t who_am_i = 0;
-volatile float   gyro_x   = 0.0f;
-volatile float   gyro_y   = 0.0f;
-volatile float   gyro_z   = 0.0f;
+/* Calibration: zero-g offset (16-bit counts) and sensitivity (counts/g)
+ * Measured on hardware at 138 MHz, ADC_CLOCK_ASYNC_DIV4, 256x oversample >>4 */
+#define ACCEL_X_ZERO_G  17286
+#define ACCEL_X_SENS    3887.0f
+#define ACCEL_Y_ZERO_G  17899
+#define ACCEL_Y_SENS    3971.0f
+#define ACCEL_Z_ZERO_G  17899
+#define ACCEL_Z_SENS    3971.0f
+
+/* --- Gyroscope (SPI, ICM-42688 or compatible) --- */
+#define IMU_REG_PWR_MGMT_1   0x6B
+#define IMU_REG_USER_CTRL    0x6A
+
+#define IMU_REG_WHO_AM_I     0x75
+#define IMU_WHO_AM_I_VAL     0xB5
+
+#define IMU_REG_GYRO_XOUT_H  0x43
+
+#define IMU_CS_PORT          GPIOA
+#define IMU_CS_PIN           SPI_CS_Pin
+#define IMU_CS_LOW()         HAL_GPIO_WritePin(IMU_CS_PORT, IMU_CS_PIN, GPIO_PIN_RESET)
+#define IMU_CS_HIGH()        HAL_GPIO_WritePin(IMU_CS_PORT, IMU_CS_PIN, GPIO_PIN_SET)
+
+static volatile uint8_t who_am_i = 0;
+
+static volatile float   gyro_x   = 0.0f;  /* deg/s */
+static volatile float   gyro_y   = 0.0f;
+static volatile float   gyro_z   = 0.0f;
+
+static uint8_t gyro_dma_buf[6];
+static uint8_t gyro_addr = IMU_REG_GYRO_XOUT_H | 0x80;
+static volatile bool gyro_dma_ready = false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -57,32 +91,20 @@ static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_ADC2_Init(void);
-
+static void MX_TIM6_Init(void);
+static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
-
+static void     DWT_Init(void);
+static float    ComputeKalmanDT(void);
+static uint8_t  IMU_ReadReg(uint8_t reg);
+static void     IMU_WriteReg(uint8_t reg, uint8_t data);
+static void     IMU_ReadBurst(uint8_t reg, uint8_t *buf, uint8_t len);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-#define ACCEL_X_ZERO_G    17286
-#define ACCEL_X_SENS      3887.0f
-#define ACCEL_Y_ZERO_G    17899
-#define ACCEL_Y_SENS      3971.0f
-#define ACCEL_Z_ZERO_G    17899
-#define ACCEL_Z_SENS      3971.0f
-
-#define IMU_REG_PWR_MGMT_1  0x6B
-#define IMU_REG_USER_CTRL   0x6A
-#define IMU_REG_WHO_AM_I    0x75
-#define IMU_WHO_AM_I_VAL    0xB5
-#define IMU_REG_GYRO_XOUT_H 0x43
-#define IMU_CS_PORT         GPIOA
-#define IMU_CS_PIN          SPI_CS_Pin
-
-#define IMU_CS_LOW()   HAL_GPIO_WritePin(IMU_CS_PORT, IMU_CS_PIN, GPIO_PIN_RESET)
-#define IMU_CS_HIGH()  HAL_GPIO_WritePin(IMU_CS_PORT, IMU_CS_PIN, GPIO_PIN_SET)
-
+/* --- ADC conversion complete callback (called from DMA ISR) --- */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     if (hadc->Instance == ADC1)
@@ -96,6 +118,29 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     }
 }
 
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    if (hspi == &hspi1)
+    {
+        IMU_CS_HIGH();
+
+        int16_t raw_x = (int16_t)((gyro_dma_buf[0] << 8) | gyro_dma_buf[1]);
+        int16_t raw_y = (int16_t)((gyro_dma_buf[2] << 8) | gyro_dma_buf[3]);
+        int16_t raw_z = (int16_t)((gyro_dma_buf[4] << 8) | gyro_dma_buf[5]);
+
+        gyro_x = (float)raw_x / 131.0f * (M_PI / 180.0f);
+        gyro_y = (float)raw_y / 131.0f * (M_PI / 180.0f);
+        gyro_z = (float)raw_z / 131.0f * (M_PI / 180.0f);
+
+        gyro_dma_ready = true;
+
+        IMU_CS_LOW();
+        HAL_SPI_Transmit(&hspi1, &gyro_addr, 1, HAL_MAX_DELAY);
+        HAL_SPI_Receive_DMA(&hspi1, gyro_dma_buf, 6);
+    }
+}
+
+/* --- SPI / IMU helpers --- */
 static void IMU_WriteReg(uint8_t reg, uint8_t data)
 {
     uint8_t tx[2] = { reg & 0x7F, data };
@@ -114,13 +159,23 @@ static uint8_t IMU_ReadReg(uint8_t reg)
     return rx[1];
 }
 
-static void IMU_ReadBurst(uint8_t reg, uint8_t *buf, uint8_t len)
+/* --- DWT cycle counter for precise dt --- */
+static void DWT_Init(void)
 {
-    uint8_t addr = reg | 0x80;
-    IMU_CS_LOW();
-    HAL_SPI_Transmit(&hspi1, &addr, 1, HAL_MAX_DELAY);
-    HAL_SPI_Receive(&hspi1, buf, len, HAL_MAX_DELAY);
-    IMU_CS_HIGH();
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0;
+    DWT->CTRL  |= DWT_CTRL_CYCCNTENA_Msk;
+}
+
+static float ComputeKalmanDT(void)
+{
+    static uint32_t last_tick  = 0;
+    static bool     initialized = false;
+    uint32_t now = DWT->CYCCNT;
+    if (!initialized) { last_tick = now; initialized = true; return 0.0f; }
+    float dt = (float)(now - last_tick) / CLOCK_SPEED;
+    last_tick = now;
+    return dt;
 }
 
 /* USER CODE END 0 */
@@ -133,7 +188,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -142,15 +196,13 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  SystemCoreClockUpdate();
-  HAL_InitTick(TICK_INT_PRIORITY);
+  DWT_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -159,23 +211,45 @@ int main(void)
   MX_ADC1_Init();
   MX_SPI1_Init();
   MX_ADC2_Init();
-  //MX_ADC2_Init();
+  MX_TIM6_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
+
+  /* Start timers (interrupt mode) */
+  HAL_TIM_Base_Start_IT(&htim6);   /* 640  Hz — Kalman flag */
+  HAL_TIM_Base_Start_IT(&htim7);   /* 6900 Hz — Quad flag   */
+
+  /* Calibrate and start ADC DMA */
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buf, 2);
-  HAL_ADC_Start_DMA(&hadc2, (uint32_t*)&adc_x, 1);
+  HAL_ADC_Start_DMA(&hadc2, (uint32_t*)&adc_x,  1);
 
+  /* IMU init */
   IMU_CS_HIGH();
   HAL_Delay(10);
   who_am_i = IMU_ReadReg(IMU_REG_WHO_AM_I);
   if (who_am_i == IMU_WHO_AM_I_VAL) {
-	IMU_WriteReg(IMU_REG_PWR_MGMT_1, 0x01);
-	HAL_Delay(50);
-	IMU_WriteReg(IMU_REG_USER_CTRL, 0x10);
+      IMU_WriteReg(IMU_REG_PWR_MGMT_1, 0x01);   /* clock select: PLL */
+      HAL_Delay(50);
+      IMU_WriteReg(IMU_REG_USER_CTRL, 0x10);    /* disable I2C */
+
+      IMU_CS_LOW(); // Start callback
+      HAL_SPI_Transmit(&hspi1, &gyro_addr, 1, HAL_MAX_DELAY);
+      HAL_SPI_Receive_DMA(&hspi1, gyro_dma_buf, 6);
   }
 
-  HAL_GPIO_TogglePin(GPIOA, LED_Blink_Pin);
+  /* Kalman filter structures */
+  StateVector            state_vector            = StateVector_Construct();
+  ErrorCovarianceMatrix  error_covariance_matrix = ErrorCovarianceMatrix_Construct();
+  const ProcessNoiseMatrix     process_noise_matrix     = ProcessNoiseMatrix_Construct();
+  const MeasurementNoiseMatrix measurement_noise_matrix = MeasurementNoiseMatrix_Construct();
+
+  /* Quadrature output — 4096 CPR, 1 axis (pitch) */
+  QuadratureOutput quad_pkg = QuadratureOutput_Construct(4096, 1);
+  QuadratureOutput_Initialize(&quad_pkg, 0.0, 0.0);
+
+  HAL_GPIO_TogglePin(GPIOA, LED_Blink_Pin);   /* signal init complete */
 
   /* USER CODE END 2 */
 
@@ -184,20 +258,51 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  if (who_am_i == IMU_WHO_AM_I_VAL) {
-	       uint8_t buf[6];
-	       IMU_ReadBurst(IMU_REG_GYRO_XOUT_H, buf, 6);
-	       int16_t raw_x = (int16_t)((buf[0] << 8) | buf[1]);
-	       int16_t raw_y = (int16_t)((buf[2] << 8) | buf[3]);
-	       int16_t raw_z = (int16_t)((buf[4] << 8) | buf[5]);
-	       gyro_x = (float)raw_x / 131.0f;
-	       gyro_y = (float)raw_y / 131.0f;
-	       gyro_z = (float)raw_z / 131.0f;
-	   }
-	   HAL_GPIO_TogglePin(GPIOA, Axis2A_Pin);
-	   HAL_Delay(20);
+
     /* USER CODE BEGIN 3 */
-  }
+
+    /* ---- Kalman filter @ 640 Hz ---- */
+    if (GetKalmanReady()) {
+        float dt = ComputeKalmanDT();
+        if (dt > 0.0f) {
+            /* Read gyroscope (already in rad/s, updated by DMA callback) */
+            GyroSample gyro_sample;
+            if (gyro_dma_ready) {
+                gyro_dma_ready = false;
+
+                gyro_sample.gx = gyro_x;
+                gyro_sample.gy = gyro_y;
+                gyro_sample.gz = gyro_z;
+            }
+
+            /* Read accelerometer (already in g, updated by DMA callback) */
+            AccelSample accel_sample;
+            accel_sample.ax = accel_x;
+            accel_sample.ay = accel_y;
+            accel_sample.az = accel_z;
+
+            /* Run kalman filter */
+            kalman_run(dt,
+                       &state_vector,
+                       &error_covariance_matrix,
+                       &gyro_sample,
+                       &accel_sample,
+                       &process_noise_matrix,
+                       &measurement_noise_matrix);
+        }
+    }
+
+    /* ---- Quadrature output @ ~6900 Hz ---- */
+    if (GetQuadReady()) {
+        /* Convert pitch (rad) to degrees for quadrature output */
+        double pitch_deg = (double)state_vector.vector[PITCH] * (180.0 / M_PI);
+        QuadratureOutput_Update(&quad_pkg, pitch_deg, 0.0);
+
+        /* Drive GPIO pins from quadrature state */
+        HAL_GPIO_WritePin(GPIOA, Axis1A_Pin, quad_pkg.axis1.channel_a ? GPIO_PIN_SET : GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(GPIOA, Axis1B_Pin, quad_pkg.axis1.channel_b ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    }
+
   /* USER CODE END 3 */
 }
 
@@ -223,7 +328,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-  RCC_OscInitStruct.PLL.PLLN = 24;
+  RCC_OscInitStruct.PLL.PLLN = 69;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -241,7 +346,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {
     Error_Handler();
   }
@@ -256,25 +361,23 @@ static void MX_ADC1_Init(void)
 {
 
   /* USER CODE BEGIN ADC1_Init 0 */
-
   /* USER CODE END ADC1_Init 0 */
 
   ADC_MultiModeTypeDef multimode = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
 
   /* USER CODE BEGIN ADC1_Init 1 */
-
   /* USER CODE END ADC1_Init 1 */
 
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV4;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.GainCompensation = 0;
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.NbrOfConversion = 2;
@@ -303,20 +406,26 @@ static void MX_ADC1_Init(void)
 
   /** Configure Regular Channel
   */
-  sConfig.Channel      = ADC_CHANNEL_5;
-  sConfig.Rank         = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
-  sConfig.SingleDiff   = ADC_SINGLE_ENDED;
+  sConfig.Channel = ADC_CHANNEL_5;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
+  sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
-  sConfig.Offset       = 0;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) Error_Handler();
+  sConfig.Offset = 0;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
+  /** Configure Regular Channel
+  */
   sConfig.Channel = ADC_CHANNEL_11;
-  sConfig.Rank    = ADC_REGULAR_RANK_2;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) Error_Handler();
-
+  sConfig.Rank = ADC_REGULAR_RANK_2;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN ADC1_Init 2 */
-
   /* USER CODE END ADC1_Init 2 */
 
 }
@@ -328,9 +437,19 @@ static void MX_ADC1_Init(void)
   */
 static void MX_ADC2_Init(void)
 {
+
+  /* USER CODE BEGIN ADC2_Init 0 */
+  /* USER CODE END ADC2_Init 0 */
+
   ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC2_Init 1 */
+  /* USER CODE END ADC2_Init 1 */
+
+  /** Common config
+  */
   hadc2.Instance = ADC2;
-  hadc2.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc2.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV4;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc2.Init.GainCompensation = 0;
@@ -342,22 +461,33 @@ static void MX_ADC2_Init(void)
   hadc2.Init.DiscontinuousConvMode = DISABLE;
   hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc2.Init.DMAContinuousRequests = ENABLE;         // was DISABLE
+  hadc2.Init.DMAContinuousRequests = ENABLE;
   hadc2.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc2.Init.OversamplingMode = ENABLE;
   hadc2.Init.Oversampling.Ratio = ADC_OVERSAMPLING_RATIO_256;
   hadc2.Init.Oversampling.RightBitShift = ADC_RIGHTBITSHIFT_4;
   hadc2.Init.Oversampling.TriggeredMode = ADC_TRIGGEREDMODE_SINGLE_TRIGGER;
   hadc2.Init.Oversampling.OversamplingStopReset = ADC_REGOVERSAMPLING_RESUMED_MODE;
-  if (HAL_ADC_Init(&hadc2) != HAL_OK) Error_Handler();
+  if (HAL_ADC_Init(&hadc2) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
-  sConfig.Channel = ADC_CHANNEL_15;                  // X axis, PB15
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_15;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK) Error_Handler();
+  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC2_Init 2 */
+  /* USER CODE END ADC2_Init 2 */
+
 }
 
 /**
@@ -369,11 +499,9 @@ static void MX_SPI1_Init(void)
 {
 
   /* USER CODE BEGIN SPI1_Init 0 */
-
   /* USER CODE END SPI1_Init 0 */
 
   /* USER CODE BEGIN SPI1_Init 1 */
-
   /* USER CODE END SPI1_Init 1 */
   /* SPI1 parameter configuration*/
   hspi1.Instance = SPI1;
@@ -383,7 +511,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -395,8 +523,77 @@ static void MX_SPI1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN SPI1_Init 2 */
-
   /* USER CODE END SPI1_Init 2 */
+
+}
+
+/**
+  * @brief TIM6 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM6_Init(void)
+{
+
+  /* USER CODE BEGIN TIM6_Init 0 */
+  /* USER CODE END TIM6_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM6_Init 1 */
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 74;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 2874;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
+  /* USER CODE END TIM6_Init 2 */
+
+}
+
+/**
+  * @brief TIM7 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM7_Init(void)
+{
+
+  /* USER CODE BEGIN TIM7_Init 0 */
+  /* USER CODE END TIM7_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM7_Init 1 */
+  /* USER CODE END TIM7_Init 1 */
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 9;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 1999;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM7_Init 2 */
+  /* USER CODE END TIM7_Init 2 */
 
 }
 
@@ -412,10 +609,14 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 5, 0);
+  /* DMA1_Channel2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+  /* DMA1_Channel3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
 
 }
 
@@ -428,7 +629,6 @@ static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   /* USER CODE BEGIN MX_GPIO_Init_1 */
-
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
@@ -449,12 +649,11 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
-  HAL_GPIO_WritePin(GPIOA, SPI_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, SPI_CS_Pin, GPIO_PIN_SET);  /* deselect IMU */
   /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
-
 /* USER CODE END 4 */
 
 /**
@@ -464,11 +663,8 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  while (1)
-  {
-  }
+  while (1) {}
   /* USER CODE END Error_Handler_Debug */
 }
 #ifdef USE_FULL_ASSERT
@@ -482,8 +678,6 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
