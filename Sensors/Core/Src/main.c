@@ -91,6 +91,28 @@ static volatile float log_accel_z[LOG_SIZE];
 static volatile int   log_axis1_a[LOG_SIZE];
 static volatile int   log_axis1_b[LOG_SIZE];
 
+static volatile float log_dt_s;
+static volatile float log_roll_s;
+static volatile float log_pitch_s;
+static volatile float log_gyro_x_s;
+static volatile float log_gyro_y_s;
+static volatile float log_gyro_z_s;
+static volatile float log_accel_x_s;
+static volatile float log_accel_y_s;
+static volatile float log_accel_z_s;
+static volatile int   log_axis1_a_s;
+static volatile int   log_axis1_b_s;
+
+/* --- I2C (to Arduino) --- */
+#define SLAVE_ADDRESS 0x48
+typedef struct __attribute__((packed)) {
+    uint8_t header;      // always 0xAA
+    uint8_t counter;     // increments every packet
+    int16_t pitch_x100;  // pitch in degrees * 100
+    int16_t roll_x100;   // roll in degrees * 100
+} imu_packet_t;
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -247,6 +269,9 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
+	imu_packet_t packet;
+	packet.header = 0xAA;
+	packet.counter = 0;
 
     /* ---- Quadrature output @ ~6900 Hz ---- */
 	/* ---- Kalman filter @ 640 Hz ---- */
@@ -293,8 +318,8 @@ int main(void)
         else if (log_idx == 0) {
             log_dt[log_idx] = dt;
 
-            log_roll[log_idx] = state_vector.vector[ROLL];
-            log_pitch[log_idx] = state_vector.vector[PITCH];
+            log_roll[log_idx] = state_vector.vector[ROLL] * (180.0 / M_PI);;
+            log_pitch[log_idx] = state_vector.vector[PITCH] * (180.0 / M_PI);;
 
             log_gyro_x[log_idx] = gyro_sample.gx;
             log_gyro_y[log_idx] = gyro_sample.gy;
@@ -315,8 +340,8 @@ int main(void)
         else {
             log_dt[log_idx] = dt;
 
-            log_roll[log_idx] = state_vector.vector[ROLL];
-            log_pitch[log_idx] = state_vector.vector[PITCH];
+            log_roll[log_idx] = state_vector.vector[ROLL] * (180.0 / M_PI);;
+            log_pitch[log_idx] = state_vector.vector[PITCH] * (180.0 / M_PI);;
 
             log_gyro_x[log_idx] = gyro_sample.gx;
             log_gyro_y[log_idx] = gyro_sample.gy;
@@ -331,6 +356,27 @@ int main(void)
 
     		log_idx++;
         }
+      	log_dt_s = dt;
+
+      	log_roll_s = state_vector.vector[ROLL] * (180.0 / M_PI);
+      	log_pitch_s  = state_vector.vector[ROLL] * (180.0 / M_PI);
+
+      	log_gyro_x_s = gyro_sample.gx;
+      	log_gyro_y_s = gyro_sample.gy;
+      	log_gyro_z_s = gyro_sample.gz;
+
+      	log_accel_x_s = accel_sample.ax;
+      	log_accel_y_s = accel_sample.ay;
+      	log_accel_z_s = accel_sample.az;
+
+      	log_axis1_a_s = quad_pkg.axis1.channel_a;
+      	log_axis1_b_s = quad_pkg.axis1.channel_b;
+
+      	packet.roll_x100 = (int16_t)(log_roll_s * 100);
+      	packet.pitch_x100 = (int16_t)(log_pitch_s * 100);
+
+      	HAL_I2C_MASTER_Transmit(&hi2c1, (SLAVE_ADDRESS << 1), (uint8_t *)&packet, sizeof(packet), 1);
+      	packet.counter++;
 	}
 	if (GetQuadReady()) {
         /* Drive GPIO pins from quadrature state */
