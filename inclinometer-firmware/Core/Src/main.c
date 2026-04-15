@@ -98,7 +98,6 @@ static void     DWT_Init(void);
 static float    ComputeKalmanDT(void);
 static uint8_t  IMU_ReadReg(uint8_t reg);
 static void     IMU_WriteReg(uint8_t reg, uint8_t data);
-static void     IMU_ReadBurst(uint8_t reg, uint8_t *buf, uint8_t len);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -302,7 +301,7 @@ int main(void)
         HAL_GPIO_WritePin(GPIOA, Axis1A_Pin, quad_pkg.axis1.channel_a ? GPIO_PIN_SET : GPIO_PIN_RESET);
         HAL_GPIO_WritePin(GPIOA, Axis1B_Pin, quad_pkg.axis1.channel_b ? GPIO_PIN_SET : GPIO_PIN_RESET);
     }
-
+  }
   /* USER CODE END 3 */
 }
 
