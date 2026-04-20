@@ -60,20 +60,27 @@ volatile float    accel_y    = 0.0f;
 volatile float    accel_z    = 0.0f;
 
 /* --- Gyroscope (SPI, ICM-42688 or compatible) --- */
+#define MAX_CODE			 32768.0
+#define MAX_DPS				 250
+#define SENSITIVITY			 (float) MAX_CODE / MAX_DPS
+
 #define IMU_REG_PWR_MGMT_1   0x6B
 #define IMU_REG_USER_CTRL    0x6A
+
 #define IMU_REG_WHO_AM_I     0x75
 #define IMU_WHO_AM_I_VAL     0xB5
+
 #define IMU_REG_GYRO_XOUT_H  0x43
+
 #define IMU_CS_PORT          GPIOA
 #define IMU_CS_PIN           SPI_CS_Pin
 #define IMU_CS_LOW()         HAL_GPIO_WritePin(IMU_CS_PORT, IMU_CS_PIN, GPIO_PIN_RESET)
 #define IMU_CS_HIGH()        HAL_GPIO_WritePin(IMU_CS_PORT, IMU_CS_PIN, GPIO_PIN_SET)
 
 volatile uint8_t who_am_i = 0;
-volatile float   gyro_x   = 0.0f;  /* deg/s */
-volatile float   gyro_y   = 0.0f;
-volatile float   gyro_z   = 0.0f;
+static volatile float   gyro_x   = 0.0f;  /* deg/s */
+static volatile float   gyro_y   = 0.0f;
+static volatile float   gyro_z   = 0.0f;
 
 /* --- Loggers --- */
 #define LOG_SIZE 512
@@ -240,13 +247,23 @@ int main(void)
 
   /* IMU init */
   IMU_CS_HIGH();
-  HAL_Delay(10);
+  HAL_Delay(100);
   who_am_i = IMU_ReadReg(IMU_REG_WHO_AM_I);
+
   if (who_am_i == IMU_WHO_AM_I_VAL)
   {
-      IMU_WriteReg(IMU_REG_PWR_MGMT_1, 0x01);   /* clock select: PLL */
-      HAL_Delay(50);
+	  // RESET + CLKSEL
+	  IMU_WriteReg(0x6B, 0x80);
+	  HAL_Delay(100);
+	  IMU_WriteReg(0x6B, 0x01);
+	  HAL_Delay(50);
+
       IMU_WriteReg(IMU_REG_USER_CTRL, 0x10);    /* disable I2C */
+      IMU_WriteReg(0x6C, 0x00);   // PWR_MGMT_2: enable all gyro axes (XG, YG, ZG)
+      IMU_WriteReg(0x1A, 0x05);   // CONFIG: DLPF_CFG=5, 10 Hz BW, 1 kHz internal rate
+      IMU_WriteReg(0x1B, 0x00);   // GYRO_CONFIG: FS_SEL=0 (±250 dps), DLPF enabled
+      IMU_WriteReg(0x19, 0x00);   // SMPLRT_DIV=0 -> 1000 Hz output rate
+      HAL_Delay(50);              // Final settle
   }
 
   /* Kalman filter structures */
@@ -285,12 +302,12 @@ int main(void)
 			if (who_am_i == IMU_WHO_AM_I_VAL) {
 				uint8_t buf[6];
 				IMU_ReadBurst(IMU_REG_GYRO_XOUT_H, buf, 6);
-				int16_t raw_x = (int16_t)((buf[0] << 8) | buf[1]);
-				int16_t raw_y = (int16_t)((buf[2] << 8) | buf[3]);
-				int16_t raw_z = (int16_t)((buf[4] << 8) | buf[5]);
-				gyro_sample.gx = (float)raw_x / 131.0f * (M_PI / 180.0f);
-				gyro_sample.gy = (float)raw_y / 131.0f * (M_PI / 180.0f);
-				gyro_sample.gz = (float)raw_z / 131.0f * (M_PI / 180.0f);
+				gyro_x = (int16_t)((buf[0] << 8) | buf[1]);
+				gyro_y = (int16_t)((buf[2] << 8) | buf[3]);
+				gyro_z = (int16_t)((buf[4] << 8) | buf[5]);
+				gyro_sample.gx = (float)gyro_x / SENSITIVITY * (M_PI / 180.0f);
+				gyro_sample.gy = (float)gyro_y / SENSITIVITY * (M_PI / 180.0f);
+				gyro_sample.gz = (float)gyro_z / SENSITIVITY * (M_PI / 180.0f);
 			}
 
 			/* Read accelerometer (already in g, updated by DMA callback) */
@@ -375,7 +392,7 @@ int main(void)
       	packet.roll_x100 = (int16_t)(log_roll_s * 100);
       	packet.pitch_x100 = (int16_t)(log_pitch_s * 100);
 
-      	HAL_I2C_MASTER_Transmit(&hi2c1, (SLAVE_ADDRESS << 1), (uint8_t *)&packet, sizeof(packet), 1);
+      	//HAL_I2C_MASTER_Transmit(&hi2c1, (SLAVE_ADDRESS << 1), (uint8_t *)&packet, sizeof(packet), 1);
       	packet.counter++;
 	}
 	if (GetQuadReady()) {

@@ -85,6 +85,18 @@ static uint8_t gyro_dma_buf[6];
 static uint8_t gyro_addr = IMU_REG_GYRO_XOUT_H | 0x80;
 static volatile bool gyro_dma_ready = false;
 
+static volatile float log_dt_s;
+static volatile float log_roll_s;
+static volatile float log_pitch_s;
+static volatile float log_gyro_x_s;
+static volatile float log_gyro_y_s;
+static volatile float log_gyro_z_s;
+static volatile float log_accel_x_s;
+static volatile float log_accel_y_s;
+static volatile float log_accel_z_s;
+static volatile int   log_axis1_a_s;
+static volatile int   log_axis1_b_s;
+
 /* --- I2C (to Arduino) --- */
 #define ARDUINO_SLAVE_ADDR 0x48
 
@@ -319,6 +331,22 @@ int main(void)
 
 			/* Send to Arduino */
 			HAL_I2C_Master_Transmit(&hi2c3, (ARDUINO_SLAVE_ADDR << 1), (uint8_t *)&packet, sizeof(packet), 10);
+
+	      	log_dt_s = dt;
+
+	      	log_roll_s = state_vector.vector[ROLL] * (180.0 / M_PI);
+	      	log_pitch_s  = state_vector.vector[ROLL] * (180.0 / M_PI);
+
+	      	log_gyro_x_s = gyro_sample.gx;
+	      	log_gyro_y_s = gyro_sample.gy;
+	      	log_gyro_z_s = gyro_sample.gz;
+
+	      	log_accel_x_s = accel_sample.ax;
+	      	log_accel_y_s = accel_sample.ay;
+	      	log_accel_z_s = accel_sample.az;
+
+	      	log_axis1_a_s = quad_pkg.axis1.channel_a;
+	      	log_axis1_b_s = quad_pkg.axis1.channel_b;
 		}
     }
 
