@@ -6,6 +6,7 @@
 #endif // DEBUG_KALMAN
 
 //=== Static Declarations ===//
+static int isnan_f(float x);
 static CorrectedGyro ComputeCorrectedValues(const StateVector* state, const GyroSample* gyro);
 static TrigCache ComputeTrigValues(const float roll, const float pitch);
 static void FillIdentity(float* matrix, int size);
@@ -92,10 +93,8 @@ MeasurementNoiseMatrix MeasurementNoiseMatrix_Construct() {
 
 MeasuredVector MeasuredVector_Construct(const AccelSample* accl) {
 	MeasuredVector measured;
-
-	measured.vector[ROLL] = atan2f(accl->ax, sqrtf(accl->ay*accl->ay + accl->az*accl->az));
+	measured.vector[ROLL]  = atan2f(accl->ax, sqrtf(accl->ay*accl->ay + accl->az*accl->az));
 	measured.vector[PITCH] = atan2f(-accl->ay, accl->az);
-
 	return measured;
 }
 
@@ -132,46 +131,56 @@ PredictionMatrix PredictionMatrix_Construct(const CorrectedGyro* gyro, const Tri
 
 KalmanGainMatrix KalmanGainMatrix_Construct(const ErrorCovarianceMatrix* error, const MeasurementNoiseMatrix* measurednoise) {
 	// NOTE: Function works when H = {{1,0,0,0,0},{0,1,0,0,0}}
-
 	KalmanGainMatrix kalman;
 
 	// Compute Innovation Covariance (S = HP(H^T)+R)
 	float S[VECTOR_SIZE][VECTOR_SIZE];
+    int S_bad = 0;
 
-	// Addition: O(4) Time, O(4) Space
+	// Addition
 	for (int i = 0; i < VECTOR_SIZE; i++) {
 		for (int j = 0; j < VECTOR_SIZE; j++) {
 			S[i][j] = error->matrix[i][j] + measurednoise->matrix[i][j];
+            if (isnan_f(S[i][j]) || fabsf(S[i][j]) > 1e10f) {
+                S_bad = 1;
+            }
 		}
 	}
 
-	// Invert S
-	const float eps = 1e-6f;
+	const float DET_MIN = 1e-9f;
 	float det = S[0][0]*S[1][1] - S[0][1]*S[1][0];
 
-	if (fabsf(det) < eps) {
-	    det = (det >= 0.f) ? eps : -eps;
+	// If S is corrupt or near-singular, skip the measurement update
+	if (S_bad || isnan_f(det) || fabsf(det) < DET_MIN) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			kalman.matrix[i][0] = 0.0f;
+			kalman.matrix[i][1] = 0.0f;
+		}
+		return kalman;
 	}
 
-	float factor = 1.f / det;
-	float temp = S[0][0];
-	S[0][0] = S[1][1] * factor;
-	S[1][1] = temp * factor;
-	S[0][1] *= -1.f * factor;
-	S[1][0] *= -1.f * factor;
+	// Invert S (2x2 closed form)
+	float inv_det = 1.0f / det;
+	float S_inv[VECTOR_SIZE][VECTOR_SIZE];
+	S_inv[0][0] =  S[1][1] * inv_det;
+	S_inv[1][1] =  S[0][0] * inv_det;
+	S_inv[0][1] = -S[0][1] * inv_det;
+	S_inv[1][0] = -S[1][0] * inv_det;
 
 	// Compute Kalman Gain (K=P(H^T)(S^-1))
-	// : O(5) Time, O(1) Space
 	for (int i = 0; i < MATRIX_SIZE; i++) {
-		kalman.matrix[i][0] = error->matrix[i][0]*S[0][0] + error->matrix[i][1]*S[1][0];
-		kalman.matrix[i][1] = error->matrix[i][0]*S[0][1] + error->matrix[i][1]*S[1][1];
+		kalman.matrix[i][0] = error->matrix[i][0]*S_inv[0][0] + error->matrix[i][1]*S_inv[1][0];
+		kalman.matrix[i][1] = error->matrix[i][0]*S_inv[0][1] + error->matrix[i][1]*S_inv[1][1];
 	}
 
 	return kalman;
 }
 
-
 //=== Static Helper Functions ===//
+
+static int isnan_f(float x) {
+    return x != x;
+}
 
 static CorrectedGyro ComputeCorrectedValues(const StateVector* state, const GyroSample* gyro) {
 	CorrectedGyro correctedgyro;
@@ -184,17 +193,23 @@ static CorrectedGyro ComputeCorrectedValues(const StateVector* state, const Gyro
 }
 
 static TrigCache ComputeTrigValues(const float roll, const float pitch) {
-	TrigCache trig;
+    TrigCache trig;
 
-	const float eps = 1e-6f;
-	const float safe_pitch = (fabsf(pitch) > (M_PI_2 - eps)) ? copysignf(M_PI_2 - eps, pitch) : pitch;
+    const float COS_P_MIN = 1e-4f;  // ~89.994 deg
 
-	trig.cos_r = cosf(roll);
-	trig.sin_r = sinf(roll);
-	trig.tan_p = tanf(safe_pitch);
-	trig.sec2_p = 1 + (trig.tan_p*trig.tan_p);
+    trig.cos_r = cosf(roll);
+    trig.sin_r = sinf(roll);
 
-	return trig;
+    float cos_p = cosf(pitch);
+    float sin_p = sinf(pitch);
+
+    // Guard only the true singularity
+    if (fabsf(cos_p) < COS_P_MIN) { cos_p = copysignf(COS_P_MIN, cos_p); }
+
+    trig.tan_p  = sin_p / cos_p;
+    trig.sec2_p = 1.0f / (cos_p * cos_p);
+
+    return trig;
 }
 
 static void FillIdentity(float* matrix, int size) {
@@ -209,7 +224,7 @@ static void ComputeErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const Pre
 	float A[MATRIX_SIZE][MATRIX_SIZE] = {0};
 	float B[MATRIX_SIZE][MATRIX_SIZE] = {0};
 
-	// Multiplication: O(125) Time, O(25) Space
+	// Multiplication
     for (int i = 0; i < MATRIX_SIZE; i++) { // Loop through each row of mat1
         for (int j = 0; j < MATRIX_SIZE; j++) { // Loop through each column of mat2
             for (int k = 0; k < MATRIX_SIZE; k++) { // Compute the dot product of row mat1[i] and column mat2[][j]
@@ -218,7 +233,7 @@ static void ComputeErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const Pre
         }
     }
 
-	// Multiplication: O(125) Time, O(25) Space
+	// Multiplication
     for (int i = 0; i < MATRIX_SIZE; i++) { // Loop through each row of mat1
         for (int j = 0; j < MATRIX_SIZE; j++) { // Loop through each column of mat2
             for (int k = 0; k < MATRIX_SIZE; k++) { // Compute the dot product of row mat1[i] and column mat2[][j]
@@ -227,7 +242,7 @@ static void ComputeErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const Pre
         }
     }
 
-	// Addition: O(25) Time, O(1) Space
+	// Addition
     for (int i = 0; i < MATRIX_SIZE; i++) {
     	for (int j = 0; j < MATRIX_SIZE; j++) {
     		error->matrix[i][j] = B[i][j] + noise->matrix[i][j];

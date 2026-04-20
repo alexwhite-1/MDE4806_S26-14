@@ -36,7 +36,7 @@ ADC_HandleTypeDef hadc2;
 DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc2;
 
-I2C_HandleTypeDef hi2c1;
+I2C_HandleTypeDef hi2c3;
 
 SPI_HandleTypeDef hspi1;
 DMA_HandleTypeDef hdma_spi1_rx;
@@ -46,11 +46,11 @@ TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN PV */
 /* --- Accelerometer (ADC, DMA) --- */
-volatile uint16_t adc_buf[2] = {0};  /* [0]=Y (CH5/PB14), [1]=Z (CH11/PB12) */
-volatile uint16_t adc_x      = 0;    /* X  (CH15/PB15, ADC2) */
-volatile float    accel_x    = 0.0f;
-volatile float    accel_y    = 0.0f;
-volatile float    accel_z    = 0.0f;
+static volatile uint16_t adc_buf[2] = {0};  /* [0]=Y (CH5/PB14), [1]=Z (CH11/PB12) */
+static volatile uint16_t adc_x      = 0;    /* X  (CH15/PB15, ADC2) */
+static volatile float    accel_x    = 0.0f;
+static volatile float    accel_y    = 0.0f;
+static volatile float    accel_z    = 0.0f;
 
 /* Calibration: zero-g offset (16-bit counts) and sensitivity (counts/g)
  * Measured on hardware at 138 MHz, ADC_CLOCK_ASYNC_DIV4, 256x oversample >>4 */
@@ -77,7 +77,7 @@ volatile float    accel_z    = 0.0f;
 
 static volatile uint8_t who_am_i = 0;
 
-static volatile float   gyro_x   = 0.0f;  /* deg/s */
+static volatile float   gyro_x   = 0.0f;
 static volatile float   gyro_y   = 0.0f;
 static volatile float   gyro_z   = 0.0f;
 
@@ -86,12 +86,16 @@ static uint8_t gyro_addr = IMU_REG_GYRO_XOUT_H | 0x80;
 static volatile bool gyro_dma_ready = false;
 
 /* --- I2C (to Arduino) --- */
+#define ARDUINO_SLAVE_ADDR 0x48
+
 typedef struct __attribute__((packed)) {
     uint8_t header;      // always 0xAA
     uint8_t counter;     // increments every packet
     int16_t pitch_x100;  // pitch in degrees * 100
     int16_t roll_x100;   // roll in degrees * 100
 } imu_packet_t;
+
+static uint8_t packet_counter = 0;
 
 /* USER CODE END PV */
 
@@ -104,7 +108,7 @@ static void MX_SPI1_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_TIM7_Init(void);
-static void MX_I2C1_Init(void);
+static void MX_I2C3_Init(void);
 /* USER CODE BEGIN PFP */
 static void     DWT_Init(void);
 static float    ComputeKalmanDT(void);
@@ -129,6 +133,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     }
 }
 
+/* --- SPI gyroscope callback --- */
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
     if (hspi == &hspi1)
@@ -224,7 +229,7 @@ int main(void)
   MX_ADC2_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
-  MX_I2C1_Init();
+  MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
 
   /* Start timers (interrupt mode) */
@@ -275,33 +280,46 @@ int main(void)
 
     /* ---- Kalman filter @ 640 Hz ---- */
     if (GetKalmanReady()) {
-        float dt = ComputeKalmanDT();
-        if (dt > 0.0f) {
-            /* Read gyroscope (already in rad/s, updated by DMA callback) */
-            GyroSample gyro_sample;
-            if (gyro_dma_ready) {
-                gyro_dma_ready = false;
+		/* Read gyroscope (already in rad/s, updated by DMA callback) */
+//		GyroSample gyro_sample;
+//		if (gyro_dma_ready) {
+//			gyro_dma_ready = false;
+//
+//			gyro_sample.gx = gyro_x;
+//			gyro_sample.gy = gyro_y;
+//			gyro_sample.gz = gyro_z;
+//		}
+		GyroSample gyro_sample;
+		gyro_sample.gx = gyro_x;
+		gyro_sample.gy = gyro_y;
+		gyro_sample.gz = gyro_z;
 
-                gyro_sample.gx = gyro_x;
-                gyro_sample.gy = gyro_y;
-                gyro_sample.gz = gyro_z;
-            }
+		/* Read accelerometer (already in g, updated by DMA callback) */
+		AccelSample accel_sample;
+		accel_sample.ax = accel_x;
+		accel_sample.ay = accel_y;
+		accel_sample.az = accel_z;
 
-            /* Read accelerometer (already in g, updated by DMA callback) */
-            AccelSample accel_sample;
-            accel_sample.ax = accel_x;
-            accel_sample.ay = accel_y;
-            accel_sample.az = accel_z;
+		float dt = ComputeKalmanDT();
 
-            /* Run kalman filter */
-            kalman_run(dt,
-                       &state_vector,
-                       &error_covariance_matrix,
-                       &gyro_sample,
-                       &accel_sample,
-                       &process_noise_matrix,
-                       &measurement_noise_matrix);
-        }
+		if (dt > 0.0f) {
+			/* Run kalman filter */
+			kalman_run(dt, &state_vector, &error_covariance_matrix, &gyro_sample, &accel_sample, &process_noise_matrix, &measurement_noise_matrix);
+
+			/* Convert to deg */
+			float pitch_deg = state_vector.vector[PITCH] * (180.0f / (float)M_PI);
+			float roll_deg  = state_vector.vector[ROLL]  * (180.0f / (float)M_PI);
+
+			/* Build packet */
+			imu_packet_t packet;
+			packet.header     = 0xAA;
+			packet.counter    = packet_counter++;
+			packet.pitch_x100 = (int16_t)(pitch_deg * 100.0f);
+			packet.roll_x100  = (int16_t)(roll_deg  * 100.0f);
+
+			/* Send to Arduino */
+			HAL_I2C_Master_Transmit(&hi2c3, (ARDUINO_SLAVE_ADDR << 1), (uint8_t *)&packet, sizeof(packet), 10);
+		}
     }
 
     /* ---- Quadrature output @ ~6900 Hz ---- */
@@ -503,50 +521,50 @@ static void MX_ADC2_Init(void)
 }
 
 /**
-  * @brief I2C1 Initialization Function
+  * @brief I2C3 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_I2C1_Init(void)
+static void MX_I2C3_Init(void)
 {
 
-  /* USER CODE BEGIN I2C1_Init 0 */
+  /* USER CODE BEGIN I2C3_Init 0 */
 
-  /* USER CODE END I2C1_Init 0 */
+  /* USER CODE END I2C3_Init 0 */
 
-  /* USER CODE BEGIN I2C1_Init 1 */
+  /* USER CODE BEGIN I2C3_Init 1 */
 
-  /* USER CODE END I2C1_Init 1 */
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x40916E9B;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  /* USER CODE END I2C3_Init 1 */
+  hi2c3.Instance = I2C3;
+  hi2c3.Init.Timing = 0x40916E9B;
+  hi2c3.Init.OwnAddress1 = 0;
+  hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c3.Init.OwnAddress2 = 0;
+  hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c3) != HAL_OK)
   {
     Error_Handler();
   }
 
   /** Configure Analogue filter
   */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
   {
     Error_Handler();
   }
 
   /** Configure Digital filter
   */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN I2C1_Init 2 */
+  /* USER CODE BEGIN I2C3_Init 2 */
 
-  /* USER CODE END I2C1_Init 2 */
+  /* USER CODE END I2C3_Init 2 */
 
 }
 
