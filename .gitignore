@@ -4,8 +4,8 @@ __pycache__/
 QuadC/.vs/
 QuadC/out/ 
 
-TEST_Kalman/.vs
-TEST_Kalman/out
+TEST-Kalman/.vs
+TEST-Kalman/out
 
 Integration/Debug
 
