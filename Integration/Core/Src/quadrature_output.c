@@ -24,6 +24,81 @@
 #include "quadrature_common.h"
 
 //============================================================================================
+//                          QuadratureStateQueue Implementation
+//============================================================================================
+
+// Initialize queue
+void QuadratureStateQueue_Initialize(QuadratureStateQueue* queue) {
+    if (queue == NULL) return;
+    
+    memset(queue->states, 0, sizeof(queue->states));
+    queue->head = 0;
+    queue->tail = 0;
+    queue->count = 0;
+}
+
+// Enqueue a state
+bool QuadratureStateQueue_Enqueue(QuadratureStateQueue* queue, QuadratureState state) {
+    if (queue == NULL) return false;
+    
+    // If queue is full, return false (do not overwrite)
+    if (queue->count >= QUADRATURE_STATE_QUEUE_SIZE) {
+        return false;
+    }
+    
+    // Add state to queue
+    queue->states[queue->head] = state;
+    queue->head = (queue->head + 1) % QUADRATURE_STATE_QUEUE_SIZE;
+    queue->count++;
+    
+    return true;
+}
+
+// Dequeue a state
+bool QuadratureStateQueue_Dequeue(QuadratureStateQueue* queue, QuadratureState* state) {
+    if (queue == NULL || state == NULL) return false;
+    
+    // If queue is empty, return false
+    if (queue->count == 0) {
+        return false;
+    }
+    
+    // Get state from queue
+    *state = queue->states[queue->tail];
+    queue->tail = (queue->tail + 1) % QUADRATURE_STATE_QUEUE_SIZE;
+    queue->count--;
+    
+    return true;
+}
+
+// Check if queue is empty
+bool QuadratureStateQueue_IsEmpty(const QuadratureStateQueue* queue) {
+    if (queue == NULL) return true;
+    return queue->count == 0;
+}
+
+// Check if queue is full
+bool QuadratureStateQueue_IsFull(const QuadratureStateQueue* queue) {
+    if (queue == NULL) return false;
+    return queue->count >= QUADRATURE_STATE_QUEUE_SIZE;
+}
+
+// Get current queue size
+size_t QuadratureStateQueue_GetSize(const QuadratureStateQueue* queue) {
+    if (queue == NULL) return 0;
+    return queue->count;
+}
+
+// Clear the queue
+void QuadratureStateQueue_Clear(QuadratureStateQueue* queue) {
+    if (queue == NULL) return;
+    
+    queue->head = 0;
+    queue->tail = 0;
+    queue->count = 0;
+}
+
+//============================================================================================
 //                          AxisState Implementation
 //============================================================================================
 
@@ -84,6 +159,40 @@ void QOutputAxisState_UpdateAxis(QOutputAxisState* axis, double angle_axis) {
     axis->previous_angle = angle_axis;
 }
 
+// Update axis with new angle reading and enqueue states
+// This function ensures all intermediate quadrature states are captured in order
+// by stepping through one position at a time and enqueueing each resulting state.
+// This guarantees correctness in state reconstruction even with rapid angle changes.
+void QOutputAxisState_UpdateAxisWithQueue(QOutputAxisState* axis, double angle_axis, QuadratureStateQueue* queue) {
+    double angle_diff = angle_axis - axis->previous_angle;
+    while (angle_diff > 180.0) angle_diff -= 360.0;
+    while (angle_diff < -180.0) angle_diff += 360.0;
+
+    int steps = QOutputAxisState_AngleToPositionChange(axis, angle_diff);
+    int dir = (steps >= 0) ? 1 : -1;
+    int remaining = (steps >= 0) ? steps : -steps;
+
+    // Step through each position change and capture the resulting state
+    while (remaining--) {
+        QOutputAxisState_StepOne(axis, dir);
+        
+        // Enqueue the state after each step (correctness priority)
+        if (queue != NULL) {
+            QuadratureState state;
+            state.axis1_A = axis->channel_a;
+            state.axis1_B = axis->channel_b;
+            
+            if (!QuadratureStateQueue_Enqueue(queue, state)) {
+                // Queue is full - state not captured. This indicates the consumer
+                // is not dequeuing fast enough. Consider increasing queue size.
+                printf("Warning: Quadrature state queue is full, state not enqueued\n");
+            }
+        }
+    }
+
+    axis->previous_angle = angle_axis;
+}
+
 // Convert angle difference to position change
 int QOutputAxisState_AngleToPositionChange(QOutputAxisState* state, double angle_diff) {
     double raw_position_change = (angle_diff / DEGREES_PER_REVOLUTION) * state->positions_per_rev;
@@ -97,6 +206,13 @@ void QOutputAxisState_UpdateQuadratureStates(QOutputAxisState* state, int positi
 }
 
 // Get the quadrature pattern for a position
+// Gray code sequence for quadrature encoding:
+//   Position 0: A=0, B=0 (state 00)
+//   Position 1: A=1, B=0 (state 10) - A leads for forward rotation
+//   Position 2: A=1, B=1 (state 11)
+//   Position 3: A=0, B=1 (state 01) - B leads for backward rotation
+// Forward rotation produces: 00 → 10 → 11 → 01 → 00 (A leads B by 90°)
+// Backward rotation produces: 00 → 01 → 11 → 10 → 00 (B leads A by 90°)
 void QOutputAxisState_GetQuadraturePattern(QOutputAxisState* state)  {
     switch (state->position_count % 4)
     {
@@ -105,16 +221,16 @@ void QOutputAxisState_GetQuadraturePattern(QOutputAxisState* state)  {
         state->channel_b = 0;
         break;
     case 1:
-        state->channel_a = 0;
-        state->channel_b = 1;
+        state->channel_a = 1;
+        state->channel_b = 0;
         break;
     case 2:
         state->channel_a = 1;
         state->channel_b = 1;
         break;
     case 3:
-        state->channel_a = 1;
-        state->channel_b = 0;
+        state->channel_a = 0;
+        state->channel_b = 1;
         break;
     default:
         state->channel_a = 0;
@@ -163,6 +279,9 @@ QuadratureOutput QuadratureOutput_Construct(int cpr, int num_axes) {
     output.axis1 = QOutputAxisState_Construct(cpr);
     output.axis2 = QOutputAxisState_Construct(cpr);
     output.num_axes = MAX(1, MIN(num_axes, 2));
+    
+    // Initialize the queue
+    QuadratureStateQueue_Initialize(&output.queue);
 
     return output;
 }
@@ -184,8 +303,8 @@ void QuadratureOutput_Update(QuadratureOutput* output, double angle_axis1, doubl
         return;
     }
 
-    // Update axis 1 (always)
-    QOutputAxisState_UpdateAxis(&output->axis1, angle_axis1);
+    // Update axis 1 (always) and enqueue states
+    QOutputAxisState_UpdateAxisWithQueue(&output->axis1, angle_axis1, &output->queue);
 
     // Update axis 2 (only if num_axes == 2)
     if (output->num_axes == 2) QOutputAxisState_UpdateAxis(&output->axis2, angle_axis2);
@@ -225,6 +344,36 @@ void QuadratureOutput_GetFormattedOutputString(const QuadratureOutput* output, c
 // Set number of axes
 void QuadratureOutput_SetNumAxes(QuadratureOutput* output, int num_axes) {
     output->num_axes = MAX(1, MIN(num_axes, 2));
+}
+
+// Dequeue a single state from the output queue
+bool QuadratureOutput_DequeueState(QuadratureOutput* output, QuadratureState* state) {
+    if (output == NULL || state == NULL) return false;
+    return QuadratureStateQueue_Dequeue(&output->queue, state);
+}
+
+// Get the number of pending states in the queue
+size_t QuadratureOutput_GetQueueSize(const QuadratureOutput* output) {
+    if (output == NULL) return 0;
+    return QuadratureStateQueue_GetSize(&output->queue);
+}
+
+// Check if the queue is empty
+bool QuadratureOutput_IsQueueEmpty(const QuadratureOutput* output) {
+    if (output == NULL) return true;
+    return QuadratureStateQueue_IsEmpty(&output->queue);
+}
+
+// Check if the queue is full
+bool QuadratureOutput_IsQueueFull(const QuadratureOutput* output) {
+    if (output == NULL) return false;
+    return QuadratureStateQueue_IsFull(&output->queue);
+}
+
+// Clear all pending states in the queue
+void QuadratureOutput_ClearQueue(QuadratureOutput* output) {
+    if (output == NULL) return;
+    QuadratureStateQueue_Clear(&output->queue);
 }
 
 // moves position_count by exactly one step, wraps it, refreshes A/B,
