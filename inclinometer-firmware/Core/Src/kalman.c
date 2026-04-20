@@ -7,6 +7,8 @@
 
 //=== Static Declarations ===//
 static int isnan_f(float x);
+static void SanitizeStateVector(StateVector* state);
+static void SanitizeErrorCovariance(ErrorCovarianceMatrix* error);
 static CorrectedGyro ComputeCorrectedValues(const StateVector* state, const GyroSample* gyro);
 static TrigCache ComputeTrigValues(const float roll, const float pitch);
 static void FillIdentity(float* matrix, int size);
@@ -16,6 +18,11 @@ static void UpdateErrorCovarianceMatrix(ErrorCovarianceMatrix* error, const Kalm
 
 //=== Kalman Filter ===//
 void kalman_run(float dt, StateVector* state_vector, ErrorCovarianceMatrix* error_covariance_matrix, const GyroSample* gyro, const AccelSample* accel, const ProcessNoiseMatrix* process_noise_matrix, const MeasurementNoiseMatrix* measurement_noise_matrix) {
+	
+	// Sanitize inputs at start of each cycle (Recover from transient NaN)
+	SanitizeStateVector(state_vector);
+	SanitizeErrorCovariance(error_covariance_matrix);
+
 	// GYRO PORTION
 	CorrectedGyro correct_gyro = ComputeCorrectedValues(state_vector, gyro);
 	TrigCache trig = ComputeTrigValues(state_vector->vector[ROLL], state_vector->vector[PITCH]);
@@ -180,6 +187,30 @@ KalmanGainMatrix KalmanGainMatrix_Construct(const ErrorCovarianceMatrix* error, 
 
 static int isnan_f(float x) {
     return x != x;
+}
+
+static void SanitizeStateVector(StateVector* state) {
+	for (int i = 0; i < MATRIX_SIZE; i++) {
+		if (isnan_f(state->vector[i])) {
+			// State is corrupt - reset to zero
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				state->vector[j] = 0.0f;
+			}
+			return;
+		}
+	}
+}
+
+static void SanitizeErrorCovariance(ErrorCovarianceMatrix* error) {
+	for (int i = 0; i < MATRIX_SIZE; i++) {
+		for (int j = 0; j < MATRIX_SIZE; j++) {
+			if (isnan_f(error->matrix[i][j]) || fabsf(error->matrix[i][j]) > 1e10f) {
+				// P is corrupt - reset to identity (pessimistic but recoverable)
+				FillIdentity(&error->matrix[0][0], MATRIX_SIZE);
+				return;
+			}
+		}
+	}
 }
 
 static CorrectedGyro ComputeCorrectedValues(const StateVector* state, const GyroSample* gyro) {

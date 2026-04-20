@@ -1,8 +1,8 @@
-# Install script for directory: C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST_Kalman/out/build/x64-Debug/_deps/catch2-src
+# Install script for directory: C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST-Kalman/out/build/x64-Debug/_deps/catch2-src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST_Kalman/out/install/x64-Debug")
+  set(CMAKE_INSTALL_PREFIX "C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST-Kalman/out/install/x64-Debug")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST_Kalman/out/build/x64-Debug/_deps/catch2-build/src/cmake_install.cmake")
+  include("C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST-Kalman/out/build/x64-Debug/_deps/catch2-build/src/cmake_install.cmake")
 
 endif()
 

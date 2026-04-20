@@ -7,6 +7,10 @@
 
 #define TOLERANCE 1e-5
 
+#ifndef M_PI_2
+#define M_PI_2 1.57079632679489661923
+#endif
+
 bool StateEqual(const StateVector* s1, const float expected[MATRIX_SIZE], float tol = TOLERANCE) {
    for (int i = 0; i < MATRIX_SIZE; i++) {
       if (std::abs(s1->vector[i] - expected[i]) > tol) {
@@ -343,4 +347,247 @@ TEST_CASE("Test 6 - Detecting Gyro Bias", "[test6]") {
       REQUIRE(StateEqual(&state, expected_state));
       REQUIRE(PDiagonalEqual(&P, expected_P_diag));
    }
+}
+
+// ============================================================================
+// TEST 7: NaN INPUT HANDLING
+// ============================================================================
+TEST_CASE("Test 7 - NaN Input Handling", "[test7][robustness]") {
+    float dt = 0.01f;
+    StateVector state = StateVector_Construct();
+    ErrorCovarianceMatrix P = ErrorCovarianceMatrix_Construct();
+    ProcessNoiseMatrix Q = ProcessNoiseMatrix_Construct();
+    MeasurementNoiseMatrix R = MeasurementNoiseMatrix_Construct();
+
+    float nan_val = std::nanf("");
+
+    SECTION("NaN in gyro input doesn't crash filter") {
+        GyroSample gyro = { nan_val, 0.1f, 0.0f };
+        AccelSample accel = { 0.0f, 0.0f, 1.0f };
+
+        // Filter should execute without crashing
+        REQUIRE_NOTHROW(kalman_run(dt, &state, &P, &gyro, &accel, &Q, &R));
+    }
+
+    SECTION("NaN in accel input doesn't crash filter") {
+        GyroSample gyro = { 0.0f, 0.1f, 0.0f };
+        AccelSample accel = { nan_val, 0.0f, 1.0f };
+
+        REQUIRE_NOTHROW(kalman_run(dt, &state, &P, &gyro, &accel, &Q, &R));
+    }
+
+    SECTION("Filter recovers after transient NaN gyro input") {
+        // Feed one bad sample
+        GyroSample bad_gyro = { nan_val, nan_val, nan_val };
+        AccelSample accel = { 0.0f, 0.0f, 1.0f };
+        kalman_run(dt, &state, &P, &bad_gyro, &accel, &Q, &R);
+
+        // Then feed clean samples and check recovery
+        GyroSample good_gyro = { 0.0f, 0.1f, 0.0f };
+        for (int i = 0; i < 50; i++) {
+            kalman_run(dt, &state, &P, &good_gyro, &accel, &Q, &R);
+        }
+
+        // After recovery, state should contain no NaNs
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            REQUIRE(!std::isnan(state.vector[i]));
+        }
+        // And P diagonal should be finite and positive
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            REQUIRE(!std::isnan(P.matrix[i][i]));
+            REQUIRE(std::isfinite(P.matrix[i][i]));
+        }
+    }
+}
+
+// ============================================================================
+// TEST 8: GIMBAL LOCK REGION (NEAR ±90° PITCH)
+// ============================================================================
+TEST_CASE("Test 8 - Near-Singularity Pitch", "[test8][robustness]") {
+    float dt = 0.01f;
+    ProcessNoiseMatrix Q = ProcessNoiseMatrix_Construct();
+    MeasurementNoiseMatrix R = MeasurementNoiseMatrix_Construct();
+
+    SECTION("Pitch near +90 degrees produces finite state") {
+        StateVector state = StateVector_Construct();
+        ErrorCovarianceMatrix P = ErrorCovarianceMatrix_Construct();
+
+        // Force state pitch to ~89 degrees (1.553 rad)
+        state.vector[PITCH] = 1.553f;
+
+        GyroSample gyro = { 0.1f, 0.1f, 0.1f };
+        AccelSample accel = { 0.999f, 0.0f, 0.0f };  // pitched way up
+
+        kalman_run(dt, &state, &P, &gyro, &accel, &Q, &R);
+
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            REQUIRE(!std::isnan(state.vector[i]));
+            REQUIRE(std::isfinite(state.vector[i]));
+        }
+    }
+
+    SECTION("Pitch at exactly 90 degrees produces finite state") {
+        StateVector state = StateVector_Construct();
+        ErrorCovarianceMatrix P = ErrorCovarianceMatrix_Construct();
+
+        // Exact singularity: pitch = pi/2
+        state.vector[PITCH] = static_cast<float>(M_PI_2);
+
+        GyroSample gyro = { 0.1f, 0.1f, 0.1f };
+        AccelSample accel = { 1.0f, 0.0f, 0.0f };
+
+        REQUIRE_NOTHROW(kalman_run(dt, &state, &P, &gyro, &accel, &Q, &R));
+
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            REQUIRE(!std::isnan(state.vector[i]));
+            REQUIRE(std::isfinite(state.vector[i]));
+        }
+    }
+
+    SECTION("Pitch near -90 degrees produces finite state") {
+        StateVector state = StateVector_Construct();
+        ErrorCovarianceMatrix P = ErrorCovarianceMatrix_Construct();
+
+        state.vector[PITCH] = -1.553f;
+
+        GyroSample gyro = { 0.1f, 0.1f, 0.1f };
+        AccelSample accel = { -0.999f, 0.0f, 0.0f };
+
+        kalman_run(dt, &state, &P, &gyro, &accel, &Q, &R);
+
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            REQUIRE(!std::isnan(state.vector[i]));
+            REQUIRE(std::isfinite(state.vector[i]));
+        }
+    }
+
+    SECTION("Long run through singularity does not accumulate NaN") {
+        StateVector state = StateVector_Construct();
+        ErrorCovarianceMatrix P = ErrorCovarianceMatrix_Construct();
+
+        // Start level, ramp pitch through 90 degrees via continuous gyro input
+        GyroSample gyro = { 0.0f, 1.0f, 0.0f };  // 1 rad/s pitch rate
+        AccelSample accel = { 0.0f, 0.0f, 1.0f };
+
+        // Run for ~2 seconds, enough to sweep through and past 90 degrees
+        for (int i = 0; i < 200; i++) {
+            kalman_run(dt, &state, &P, &gyro, &accel, &Q, &R);
+        }
+
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            REQUIRE(!std::isnan(state.vector[i]));
+            REQUIRE(std::isfinite(state.vector[i]));
+        }
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            for (int j = 0; j < MATRIX_SIZE; j++) {
+                REQUIRE(!std::isnan(P.matrix[i][j]));
+                REQUIRE(std::isfinite(P.matrix[i][j]));
+            }
+        }
+    }
+}
+
+// ============================================================================
+// TEST 9: ZERO AND DEGENERATE INPUTS
+// ============================================================================
+TEST_CASE("Test 9 - Zero and Degenerate Inputs", "[test9][robustness]") {
+    float dt = 0.01f;
+    ProcessNoiseMatrix Q = ProcessNoiseMatrix_Construct();
+    MeasurementNoiseMatrix R = MeasurementNoiseMatrix_Construct();
+
+    SECTION("Zero accel (free-fall) produces finite state") {
+        StateVector state = StateVector_Construct();
+        ErrorCovarianceMatrix P = ErrorCovarianceMatrix_Construct();
+
+        GyroSample gyro = { 0.0f, 0.0f, 0.0f };
+        AccelSample accel = { 0.0f, 0.0f, 0.0f };
+
+        REQUIRE_NOTHROW(kalman_run(dt, &state, &P, &gyro, &accel, &Q, &R));
+
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            REQUIRE(!std::isnan(state.vector[i]));
+            REQUIRE(!std::isnan(P.matrix[i][i]));
+        }
+    }
+
+    SECTION("All-zero input is stable") {
+        StateVector state = StateVector_Construct();
+        ErrorCovarianceMatrix P = ErrorCovarianceMatrix_Construct();
+
+        GyroSample gyro = { 0.0f, 0.0f, 0.0f };
+        AccelSample accel = { 0.0f, 0.0f, 0.0f };
+
+        for (int i = 0; i < 100; i++) {
+            kalman_run(dt, &state, &P, &gyro, &accel, &Q, &R);
+        }
+
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            REQUIRE(!std::isnan(state.vector[i]));
+            REQUIRE(std::isfinite(state.vector[i]));
+        }
+    }
+
+    SECTION("Very small dt does not blow up filter") {
+        StateVector state = StateVector_Construct();
+        ErrorCovarianceMatrix P = ErrorCovarianceMatrix_Construct();
+
+        GyroSample gyro = { 0.1f, 0.1f, 0.1f };
+        AccelSample accel = { 0.0f, 0.0f, 1.0f };
+
+        float tiny_dt = 1e-6f;
+        kalman_run(tiny_dt, &state, &P, &gyro, &accel, &Q, &R);
+
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            REQUIRE(!std::isnan(state.vector[i]));
+            REQUIRE(std::isfinite(state.vector[i]));
+        }
+    }
+}
+
+// ============================================================================
+// TEST 10: LONG-RUN STABILITY
+// ============================================================================
+TEST_CASE("Test 10 - Long-Run Stability", "[test10][robustness]") {
+    float dt = 0.01f;
+    StateVector state = StateVector_Construct();
+    ErrorCovarianceMatrix P = ErrorCovarianceMatrix_Construct();
+    ProcessNoiseMatrix Q = ProcessNoiseMatrix_Construct();
+    MeasurementNoiseMatrix R = MeasurementNoiseMatrix_Construct();
+
+    GyroSample gyro = { 0.0f, 0.0f, 0.0f };
+    AccelSample accel = { 0.0f, 0.0f, 1.0f };
+
+    // Run 10,000 cycles (~100 seconds at 100 Hz) on level, quiet input
+    for (int i = 0; i < 10000; i++) {
+        kalman_run(dt, &state, &P, &gyro, &accel, &Q, &R);
+    }
+
+    SECTION("No NaN in state after long run") {
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            REQUIRE(!std::isnan(state.vector[i]));
+            REQUIRE(std::isfinite(state.vector[i]));
+        }
+    }
+
+    SECTION("No NaN in P after long run") {
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            for (int j = 0; j < MATRIX_SIZE; j++) {
+                REQUIRE(!std::isnan(P.matrix[i][j]));
+                REQUIRE(std::isfinite(P.matrix[i][j]));
+            }
+        }
+    }
+
+    SECTION("P diagonal remains non-negative") {
+        // Variances cannot be negative
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            REQUIRE(P.matrix[i][i] >= 0.0f);
+        }
+    }
+
+    SECTION("State remains bounded on quiet input") {
+        // On level, noise-free input, state should stay near zero
+        REQUIRE(std::abs(state.vector[ROLL]) < 0.1f);
+        REQUIRE(std::abs(state.vector[PITCH]) < 0.1f);
+    }
 }

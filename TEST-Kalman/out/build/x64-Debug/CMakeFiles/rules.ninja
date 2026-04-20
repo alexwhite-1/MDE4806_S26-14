@@ -103,7 +103,7 @@ rule CXX_STATIC_LIBRARY_LINKER__Catch2WithMain_Debug
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --regenerate-during-build -SC:\VirginiaTech\ECE4806\MDE4806_S26-14\TEST_Kalman -BC:\VirginiaTech\ECE4806\MDE4806_S26-14\TEST_Kalman\out\build\x64-Debug
+  command = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --regenerate-during-build -SC:\VirginiaTech\ECE4806\MDE4806_S26-14\TEST-Kalman -BC:\VirginiaTech\ECE4806\MDE4806_S26-14\TEST-Kalman\out\build\x64-Debug
   description = Re-running CMake...
   generator = 1
 

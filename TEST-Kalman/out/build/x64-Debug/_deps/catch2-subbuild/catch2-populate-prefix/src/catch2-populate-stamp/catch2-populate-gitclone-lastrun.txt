@@ -3,9 +3,9 @@
 # No other meaning or use of this file is supported.
 
 method=git
-command=C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe;-P;C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST_Kalman/out/build/x64-Debug/_deps/catch2-subbuild/catch2-populate-prefix/tmp/catch2-populate-gitclone.cmake
-source_dir=C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST_Kalman/out/build/x64-Debug/_deps/catch2-src
-work_dir=C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST_Kalman/out/build/x64-Debug/_deps
+command=C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe;-P;C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST-Kalman/out/build/x64-Debug/_deps/catch2-subbuild/catch2-populate-prefix/tmp/catch2-populate-gitclone.cmake
+source_dir=C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST-Kalman/out/build/x64-Debug/_deps/catch2-src
+work_dir=C:/VirginiaTech/ECE4806/MDE4806_S26-14/TEST-Kalman/out/build/x64-Debug/_deps
 repository=https://github.com/catchorg/Catch2.git
 remote=origin
 init_submodules=TRUE
